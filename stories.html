@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+  <!-- SEO -->
+  <title>Our Stories | WOFHRAD-SL — Women's Forum for Human Rights &amp; Democracy</title>
+  <meta name="description" content="Read stories from WOFHRAD-SL about women, girls and communities across Sierra Leone." />
+  <meta name="keywords" content="WOFHRAD stories, women Sierra Leone, human rights news, girls safe spaces" />
+  <meta name="author" content="WOFHRAD-SL" />
+  <link rel="canonical" href="https://wofhrad-sl.github.io/stories.html" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Our Stories | WOFHRAD-SL" />
+  <meta property="og:description" content="Stories about women, girls and communities across Sierra Leone." />
+  <meta property="og:image" content="https://i0.wp.com/wofhrad.com/wp-content/uploads/2019/08/cropped-wofhrad-sl-1.jpg?fit=512%2C512&ssl=1" />
+  <meta property="og:url" content="https://wofhrad-sl.github.io/stories.html" />
+  <meta property="og:site_name" content="WOFHRAD-SL" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Our Stories | WOFHRAD-SL" />
+  <meta name="twitter:description" content="Stories about women, girls and communities across Sierra Leone." />
+  <meta name="twitter:image" content="https://i0.wp.com/wofhrad.com/wp-content/uploads/2019/08/cropped-wofhrad-sl-1.jpg?fit=512%2C512&ssl=1" />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/jpeg" href="https://i0.wp.com/wofhrad.com/wp-content/uploads/2019/08/cropped-wofhrad-sl-1.jpg?fit=512%2C512&ssl=1" />
+
+  <!-- Security Headers via meta -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' https://cdn.tailwindcss.com https://cdn.jsdelivr.net 'unsafe-inline'; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src https://fonts.gstatic.com; img-src 'self' https: data:; connect-src 'self';" />
+  <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+  <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet" />
+
+  <!-- Lucide Icons -->
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.475.0/dist/umd/lucide.min.js"></script>
+
+  <style>
+    /* ── Reset & Base ─────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      color: #1e293b;
+      background: #fff;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    h1,h2,h3,h4 { font-family: 'Playfair Display', serif; }
+    img { max-width: 100%; display: block; }
+
+    .section-label {
+      font-size: .7rem; font-weight: 700; letter-spacing: .18em;
+      text-transform: uppercase; color: #2E7D32;
+      display: inline-block; margin-bottom: .75rem; position: relative;
+    }
+    .section-label::after {
+      content: ''; position: absolute; bottom: -4px; left: 0;
+      width: 50%; height: 2px; background: #F9A825;
+    }
+
+    .btn {
+      display: inline-block; font-weight: 600; text-align: center;
+      border-radius: 9999px; padding: .7rem 1.8rem;
+      transition: all .3s ease; cursor: pointer; line-height: 1.4;
+      text-decoration: none; font-size: .875rem;
+    }
+    .btn-primary { background: #1565C0; color: #fff; }
+    .btn-primary:hover { background: #0D2B6B; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,.2); }
+    .btn-outline { border: 2px solid #fff; color: #fff; background: transparent; }
+    .btn-outline:hover { background: #fff; color: #0D2B6B; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,.2); }
+    .btn-outline-blue { border: 2px solid #1565C0; color: #1565C0; background: transparent; }
+    .btn-outline-blue:hover { background: #1565C0; color: #fff; transform: translateY(-2px); }
+
+    .reveal { opacity: 0; transform: translateY(30px); transition: opacity .8s ease, transform .8s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+      overflow: hidden; clip: rect(0,0,0,0); border: 0; white-space: nowrap; }
+
+    /* ── Accessibility: Skip Link ─────────────── */
+    .skip-link {
+      position: absolute; top: -3.5rem; left: 1rem; z-index: 2000;
+      background: #0D2B6B; color: #fff; padding: .65rem 1.25rem;
+      border-radius: .5rem; font-weight: 700; font-size: .85rem;
+      text-decoration: none; transition: top .25s ease;
+    }
+    .skip-link:focus { top: 1rem; }
+
+    /* ── Scroll Progress Bar ───────────────────── */
+    #scroll-progress {
+      position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+      background: linear-gradient(90deg,#1565C0,#F9A825);
+      z-index: 1200; transition: width .12s linear;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .reveal { transition: none; opacity: 1; transform: none; }
+      .marquee-track { animation: none; }
+    }
+
+
+    /* -- Partner logo chip (marquee) -- */
+    .partner-logo-chip {
+      flex-shrink: 0; height: 52px; display: flex; align-items: center; justify-content: center;
+      background: #fff; border: 1px solid #e2e8f0; border-radius: .85rem;
+      padding: .5rem 1.1rem; transition: transform .3s ease, box-shadow .3s ease;
+    }
+    .partner-logo-chip:hover { transform: translateY(-3px); box-shadow: 0 10px 24px rgba(0,0,0,.08); }
+    .partner-logo-chip img { max-height: 100%; max-width: 140px; width: auto; height: auto; object-fit: contain; display: block; }
+
+    /* -- Partner logo box (grid card) -- */
+    .partner-logo-box {
+      width: 100%; height: 92px; display: flex; align-items: center; justify-content: center;
+      background: #fff; border: 1px solid #f1f5f9; border-radius: 1rem; padding: .75rem;
+    }
+    .partner-logo-box img { max-height: 100%; max-width: 100%; object-fit: contain; display: block; }
+
+    
+    /* -- Donate button (nav) -- */
+    .btn-donate { background: #F9A825; color: #0D2B6B; font-weight: 700; }
+    .btn-donate:hover { background: #F57F17; color: #fff; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,.2); }
+
+    /* -- Floating donate button -- */
+    #float-donate {
+      position: fixed; bottom: 1.5rem; left: 1.5rem; z-index: 900;
+      background: #F9A825; color: #0D2B6B; font-weight: 700; font-size: .85rem;
+      padding: .75rem 1.35rem; border-radius: 9999px; text-decoration: none;
+      display: flex; align-items: center; gap: .5rem;
+      box-shadow: 0 8px 20px rgba(0,0,0,.25);
+      opacity: 0; visibility: hidden; transform: translateY(10px);
+      transition: opacity .3s ease, transform .3s ease, visibility .3s ease, background .2s ease;
+    }
+    #float-donate.visible { opacity: 1; visibility: visible; transform: translateY(0); }
+    #float-donate:hover { background: #F57F17; color: #fff; }
+    @media (max-width: 640px) { #float-donate span.label { display:none; } #float-donate { padding: .85rem; } }
+
+    /* -- Local partner badge -- */
+    .impl-partner-note {
+      display:flex; align-items:center; gap:.6rem; justify-content:center; text-align:left;
+      background:rgba(46,125,50,.06); border:1px solid rgba(46,125,50,.2); border-radius:.85rem;
+      padding:.75rem 1rem; font-size:.78rem; color:#166534; margin-top:.9rem;
+    }
+
+        /* ── Navbar ───────────────────────────────── */
+    #navbar {
+      position: fixed; top: 0; left: 0; width: 100%; z-index: 1000;
+      background: #fff; transition: box-shadow .3s ease, padding .3s ease;
+      padding: 1rem 0;
+    }
+    #navbar.scrolled { box-shadow: 0 2px 16px rgba(0,0,0,.1); padding: .6rem 0; border-bottom: 2px solid #1565C0; }
+    .nav-inner { max-width: 1280px; margin: 0 auto; padding: 0 1.25rem; display: flex; align-items: center; justify-content: space-between; }
+    .nav-logo { display: flex; align-items: center; gap: .75rem; text-decoration: none; }
+    .nav-logo img { width: 48px; height: 48px; border-radius: 50%; border: 2px solid #1565C0; object-fit: cover; }
+    .nav-logo-text h1, .nav-logo-text .brand-name { display: block; font-family: 'DM Sans',sans-serif; font-size: 1.1rem; font-weight: 700; color: #1565C0; line-height: 1.2; margin: 0; }
+    .nav-logo-text p { font-size: .65rem; color: #64748b; font-style: italic; margin: 0; line-height: 1.3; max-width: 200px; }
+    .nav-links { display: none; align-items: center; gap: 1.6rem; }
+    @media (min-width: 1180px) { .nav-links { display: flex; } }
+    .nav-links a { font-size: .85rem; font-weight: 600; color: #334155; text-decoration: none; transition: color .2s; }
+    .nav-links a:hover { color: #1565C0; }
+    .nav-links a.active { color: #1565C0; }
+    .nav-links a:focus-visible { outline: 2px solid #1565C0; outline-offset: 2px; border-radius: 3px; }
+
+    #hamburger {
+      display: flex; flex-direction: column; gap: 5px; background: none;
+      border: none; cursor: pointer; padding: 6px; border-radius: 6px;
+    }
+    @media (min-width: 1180px) { #hamburger { display: none; } }
+    #hamburger span {
+      display: block; width: 24px; height: 2px; background: #1565C0;
+      border-radius: 2px; transition: all .3s ease;
+    }
+    #hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    #hamburger.open span:nth-child(2) { opacity: 0; }
+    #hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    #mobile-menu {
+      max-height: 0; overflow: hidden; background: #fff;
+      border-top: 1px solid #e2e8f0; transition: max-height .4s ease, padding .4s ease;
+    }
+    #mobile-menu.open { max-height: calc(100vh - 80px); overflow-y: auto; padding: 1.25rem; }
+    #mobile-menu a {
+      display: block; padding: .75rem 0; font-weight: 600; color: #334155;
+      border-bottom: 1px solid #f1f5f9; text-decoration: none; font-size: .95rem;
+    }
+    #mobile-menu a:last-child { border-bottom: none; }
+    #mobile-menu a:hover { color: #1565C0; }
+    #mobile-menu .btn { width: 100%; margin-top: 1rem; text-align: center; }
+
+    /* ── Section Base ─────────────────────────── */
+    .section { padding: 5rem 1.25rem; }
+    .section-inner { max-width: 1280px; margin: 0 auto; }
+
+    /* ── Partners Hero ─────────────────────────── */
+    .partners-hero {
+      background: #0D2B6B; min-height: 46vh; display: flex; align-items: center;
+      padding: 9rem 1.25rem 4rem; position: relative; overflow: hidden;
+    }
+    .partners-hero .hero-dots {
+      position: absolute; inset: 0; opacity: .07;
+      background-image: radial-gradient(circle, #fff 1px, transparent 0);
+      background-size: 36px 36px;
+    }
+    .partners-hero-inner { max-width: 900px; margin: 0 auto; text-align: center; position: relative; z-index: 1; }
+    .partners-hero-badge {
+      display: inline-block; padding: .3rem 1rem; border-radius: 9999px;
+      background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2);
+      color: #fff; font-size: .7rem; font-weight: 700; letter-spacing: .15em;
+      text-transform: uppercase; margin-bottom: 1.5rem;
+    }
+    .partners-hero h1 { font-size: clamp(2rem,5vw,3.2rem); color: #fff; line-height: 1.15; margin-bottom: 1.25rem; }
+    .partners-hero h1 span { color: #F9A825; }
+    .partners-hero p { color: rgba(255,255,255,.8); font-size: 1.05rem; line-height: 1.8; max-width: 640px; margin: 0 auto; }
+
+    /* ── Partners Strip (marquee, reused from homepage) ── */
+    .partners-section { background: #F8FAFC; padding: 4rem 0; overflow: hidden; }
+    .marquee-wrap {
+      overflow: hidden;
+      -webkit-mask-image: linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);
+      mask-image: linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);
+    }
+    .marquee-track {
+      display: flex; width: max-content; gap: 3.5rem; align-items: center;
+      animation: marquee 30s linear infinite;
+    }
+    .marquee-wrap:hover .marquee-track { animation-play-state: paused; }
+    @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+    .partner-chip {
+      display: flex; align-items: center; gap: .65rem; font-family: 'DM Sans',sans-serif;
+      font-weight: 700; font-size: 1.05rem; color: #94a3b8; white-space: nowrap;
+      transition: color .3s ease;
+    }
+    .partner-chip:hover { color: var(--brand); }
+    .partner-dot {
+      width: 28px; height: 28px; border-radius: 50%; background: var(--brand); color: #fff;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+      font-family: 'Playfair Display',serif; font-weight: 700; font-size: .82rem;
+    }
+
+    /* ── Partners Grid ──────────────────────────── */
+    .partners-grid {
+      display: grid; gap: 1.5rem; grid-template-columns: repeat(auto-fit,minmax(240px,1fr));
+    }
+    .partner-card {
+      background: #fff; border: 1px solid #e2e8f0; border-radius: 1.25rem; padding: 2.25rem 1.5rem;
+      display: flex; flex-direction: column; align-items: center; text-align: center; gap: .9rem;
+      transition: transform .35s ease, box-shadow .35s ease, border-color .35s ease;
+    }
+    .partner-card:hover { transform: translateY(-6px); box-shadow: 0 20px 40px rgba(0,0,0,.1); border-color: transparent; }
+    .partner-mark {
+      width: 64px; height: 64px; border-radius: 50%; background: var(--brand); color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Playfair Display',serif; font-weight: 700; font-size: 1.4rem;
+      transition: transform .4s ease; flex-shrink: 0;
+    }
+    .partner-card:hover .partner-mark { transform: scale(1.08) rotate(-4deg); }
+    .partner-card h3 { font-size: 1.1rem; color: #0D2B6B; margin: 0; }
+    .partner-card p { font-size: .85rem; color: #64748b; line-height: 1.65; margin: 0; }
+    .partner-tag {
+      font-size: .62rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+      color: #2E7D32; background: rgba(46,125,50,.08); border: 1px solid rgba(46,125,50,.2);
+      padding: .25rem .75rem; border-radius: 9999px;
+    }
+    .partner-note { font-size: .78rem; color: #94a3b8; line-height: 1.6; margin-top: .35rem; }
+
+    /* ── CTA ─────────────────────────────────────── */
+    .partners-cta-section {
+      background: linear-gradient(135deg,#1565C0,#0D2B6B); position: relative; overflow: hidden;
+    }
+    .partners-cta-section::before {
+      content: ''; position: absolute; inset: 0; opacity: .07;
+      background-image: radial-gradient(circle,#fff 1px,transparent 0); background-size: 30px 30px;
+    }
+    .partners-cta-inner { position: relative; z-index: 1; text-align: center; }
+    .partners-cta-inner h2 { color: #fff; font-size: clamp(1.6rem,4vw,2.3rem); margin-bottom: 1rem; }
+    .partners-cta-inner p { color: rgba(255,255,255,.8); font-size: 1rem; max-width: 560px; margin: 0 auto 2rem; line-height: 1.8; }
+    .partners-cta-btns { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; }
+
+    /* ── Footer ──────────────────────────────────── */
+    footer { background: #071b45; color: rgba(255,255,255,.7); padding: 4rem 1.25rem 1.5rem; }
+    .footer-inner { max-width: 1280px; margin: 0 auto; }
+    .footer-grid { display: grid; gap: 2.5rem; margin-bottom: 2.5rem; }
+    @media (min-width: 640px) { .footer-grid { grid-template-columns: repeat(2,1fr); } }
+    @media (min-width: 1024px) { .footer-grid { grid-template-columns: 2fr 1fr 1fr 1fr; } }
+    .footer-brand h2 { color: #fff; font-size: 1.4rem; margin-bottom: .75rem; }
+    .footer-brand p { font-size: .85rem; line-height: 1.7; }
+    .footer-col h4 { color: #fff; font-family: 'DM Sans',sans-serif; font-size: .85rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 1.1rem; }
+    .footer-col ul { list-style: none; padding: 0; margin: 0; }
+    .footer-col li + li { margin-top: .6rem; }
+    .footer-col a { color: rgba(255,255,255,.7); text-decoration: none; font-size: .85rem; transition: color .2s; }
+    .footer-col a:hover { color: #F9A825; }
+    .footer-bottom { border-top: 1px solid rgba(255,255,255,.1); padding-top: 1.5rem; text-align: center; font-size: .78rem; color: rgba(255,255,255,.5); }
+
+    /* ── Back to top ─────────────────────────────── */
+    #back-top {
+      position: fixed; bottom: 1.5rem; right: 1.5rem; width: 46px; height: 46px;
+      border-radius: 50%; background: #1565C0; color: #fff; border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; z-index: 900;
+      opacity: 0; visibility: hidden; transform: translateY(10px);
+      transition: opacity .3s ease, transform .3s ease, visibility .3s ease, background .2s ease;
+      box-shadow: 0 8px 20px rgba(0,0,0,.2);
+    }
+    #back-top.visible { opacity: 1; visibility: visible; transform: translateY(0); }
+    #back-top:hover { background: #0D2B6B; }
+  </style>
+  <link rel="stylesheet" href="assets/extras.css" />
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to main content</a>
+<div id="scroll-progress" aria-hidden="true"></div>
+
+<!-- ═══════════════════════════════════════════
+     NAVIGATION
+════════════════════════════════════════════ -->
+<nav id="navbar" role="navigation" aria-label="Main navigation">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo" aria-label="WOFHRAD-SL — Home">
+      <img src="https://i0.wp.com/wofhrad.com/wp-content/uploads/2019/08/cropped-wofhrad-sl-1.jpg?fit=512%2C512&ssl=1"
+           alt="WOFHRAD-SL Logo" width="48" height="48" loading="eager" />
+      <div class="nav-logo-text">
+        <span class="brand-name">WOFHRAD-SL</span>
+        <p>Women's Forum for Human Rights &amp; Democracy — Sierra Leone</p>
+      </div>
+    </a>
+
+    <div class="nav-links" role="menubar">
+      <a href="index.html#about" role="menuitem">About</a>
+      <a href="index.html#programs" role="menuitem">Programs</a>
+      <a href="index.html#impact" role="menuitem">Impact</a>
+      <a href="index.html#team" role="menuitem">Team</a>
+      <a href="partners.html" role="menuitem">Partners</a>
+      <a href="stories.html" role="menuitem" class="active" aria-current="page">Stories</a>
+      <a href="index.html#contact" role="menuitem">Contact</a>
+      <a href="donate.html" class="btn btn-donate" role="menuitem">Donate</a>
+      <a href="index.html#get-involved" class="btn btn-primary" role="menuitem">Get Involved</a>
+    </div>
+
+    <button id="hamburger" aria-label="Toggle mobile menu" aria-expanded="false" aria-controls="mobile-menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+
+  <div id="mobile-menu" role="menu" aria-hidden="true">
+    <a href="index.html#about" role="menuitem">About</a>
+    <a href="index.html#programs" role="menuitem">Programs</a>
+    <a href="index.html#impact" role="menuitem">Impact</a>
+    <a href="index.html#team" role="menuitem">Team</a>
+    <a href="partners.html" role="menuitem">Partners</a>
+      <a href="stories.html" role="menuitem" class="active" aria-current="page">Stories</a>
+    <a href="index.html#contact" role="menuitem">Contact</a>
+    <a href="donate.html" class="btn btn-donate" role="menuitem">Donate</a>
+    <a href="index.html#get-involved" class="btn btn-primary" role="menuitem">Get Involved</a>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════
+     STORIES HERO
+════════════════════════════════════════════ -->
+<section class="partners-hero" id="main" tabindex="-1" aria-label="Stories">
+  <div class="hero-dots" aria-hidden="true"></div>
+  <div class="partners-hero-inner reveal">
+    <span class="partners-hero-badge">News &middot; Voices &middot; Impact</span>
+    <h1>Our <span>Stories</span></h1>
+    <p>Read about the women, girls and communities at the heart of our work across Sierra Leone.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     STORY LIST
+════════════════════════════════════════════ -->
+<section class="section" id="list-view" style="background:#F8FAFC;" aria-label="All stories">
+  <div class="section-inner">
+    <div id="story-grid" class="story-grid" aria-live="polite"></div>
+    <p id="list-state" class="story-state">Loading stories...</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     SINGLE STORY
+════════════════════════════════════════════ -->
+<section class="section" id="story-view" style="background:#fff;padding-top:8rem;display:none;" aria-label="Story">
+  <div class="section-inner">
+    <article class="story-article" id="story-article"></article>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     NEWSLETTER
+════════════════════════════════════════════ -->
+<section class="newsletter-band" aria-labelledby="nl-heading">
+  <div class="newsletter-inner">
+    <span class="section-label" style="color:#F9A825;">Newsletter</span>
+    <h2 id="nl-heading">Get our stories in your inbox</h2>
+    <p>Subscribe to the WOFHRAD-SL newsletter for news, stories and ways to support women and girls in Sierra Leone.</p>
+    <form class="subscribe-form" data-subscribe novalidate>
+      <label class="sr-only" for="nl-email-stories">Email address</label>
+      <input type="email" id="nl-email-stories" name="email" placeholder="Your email address" autocomplete="email" required />
+      <input type="text" name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+      <button type="submit" class="btn btn-donate">Subscribe</button>
+      <p class="subscribe-msg" role="status" aria-live="polite"></p>
+    </form>
+    <p class="newsletter-fine">We only use your email to send you WOFHRAD-SL news. You can unsubscribe at any time.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     FOOTER
+════════════════════════════════════════════ -->
+<footer role="contentinfo">
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <h2>WOFHRAD-SL</h2>
+        <p>Promoting justice and inclusive governance since 2006.</p>
+        <p style="margin-top:.75rem;font-size:.8rem;">17 Frontier Road, Makeni, Sierra Leone</p>
+      </div>
+      <div class="footer-col">
+        <h4>Who We Are</h4>
+        <ul>
+          <li><a href="index.html#about">Our Mission</a></li>
+          <li><a href="index.html#team">Our Team</a></li>
+          <li><a href="partners.html">Our Partners</a></li>
+          <li><a href="stories.html">Our Stories</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Programs</h4>
+        <ul>
+          <li><a href="index.html#programs">Empowerment</a></li>
+          <li><a href="index.html#programs">Peacebuilding</a></li>
+          <li><a href="index.html#programs">Internships</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Get Involved</h4>
+        <ul>
+          <li><a href="donate.html">Donate</a></li>
+          <li><a href="index.html#contact">Partner With Us</a></li>
+          <li><a href="index.html#get-involved">Internships</a></li>
+          <li><a href="https://wofhrad.com/sign-up-for-the-newsletter/" target="_blank" rel="noopener noreferrer">Newsletter</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 WOFHRAD-SL. All Rights Reserved. Registered in Sierra Leone. &middot; <a href="admin.html" style="color:inherit;">Admin</a></p>
+    </div>
+  </div>
+</footer>
+
+<!-- Back to top button -->
+<button id="back-top" aria-label="Back to top">
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+</button>
+
+<!-- Floating donate button -->
+<a href="donate.html" id="float-donate" aria-label="Donate to WOFHRAD-SL">
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+  <span class="label">Donate</span>
+</a>
+
+<!-- ═══════════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════════════ -->
+<script>
+(function() {
+  'use strict';
+
+  if (window.lucide) lucide.createIcons();
+
+  var navbar = document.getElementById('navbar');
+  var progressBar = document.getElementById('scroll-progress');
+  function onScroll() {
+    if (window.scrollY > 60) { navbar.classList.add('scrolled'); }
+    else { navbar.classList.remove('scrolled'); }
+
+    var btn = document.getElementById('back-top');
+    var donateBtn = document.getElementById('float-donate');
+    if (window.scrollY > 400) {
+      btn.classList.add('visible');
+      if (donateBtn) donateBtn.classList.add('visible');
+    } else {
+      btn.classList.remove('visible');
+      if (donateBtn) donateBtn.classList.remove('visible');
+    }
+
+    if (progressBar) {
+      var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      var pct = docHeight > 0 ? (window.scrollY / docHeight) * 100 : 0;
+      progressBar.style.width = pct + '%';
+    }
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  var hamburger = document.getElementById('hamburger');
+  var mobileMenu = document.getElementById('mobile-menu');
+
+  function closeMobile() {
+    hamburger.classList.remove('open');
+    hamburger.setAttribute('aria-expanded', 'false');
+    mobileMenu.classList.remove('open');
+    mobileMenu.setAttribute('aria-hidden', 'true');
+  }
+
+  hamburger.addEventListener('click', function() {
+    var isOpen = mobileMenu.classList.contains('open');
+    if (isOpen) { closeMobile(); }
+    else {
+      hamburger.classList.add('open');
+      hamburger.setAttribute('aria-expanded', 'true');
+      mobileMenu.classList.add('open');
+      mobileMenu.setAttribute('aria-hidden', 'false');
+    }
+  });
+
+  mobileMenu.querySelectorAll('a').forEach(function(link) {
+    link.addEventListener('click', closeMobile);
+  });
+
+  document.addEventListener('click', function(e) {
+    if (!navbar.contains(e.target)) closeMobile();
+  });
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeMobile();
+  });
+
+  var revealEls = document.querySelectorAll('.reveal');
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+  revealEls.forEach(function(el) { observer.observe(el); });
+
+  document.getElementById('back-top').addEventListener('click', function() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+})();
+</script>
+
+<script src="assets/extras.js"></script>
+<script>
+(function () {
+  'use strict';
+  var grid = document.getElementById('story-grid');
+  var state = document.getElementById('list-state');
+  var listView = document.getElementById('list-view');
+  var storyView = document.getElementById('story-view');
+  var article = document.getElementById('story-article');
+  var hero = document.getElementById('main');
+  var fmtDate = window.WOFHRAD.fmtDate;
+  var id = new URLSearchParams(location.search).get('id');
+
+  function el(tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  }
+  function imgUrl(i) { return '/api/image?id=' + encodeURIComponent(i); }
+
+  /* ---------- list ---------- */
+  function showList() {
+    fetch('/api/posts').then(function (r) { return r.ok ? r.json() : Promise.reject(); }).then(function (data) {
+      if (!data.posts.length) { state.textContent = 'No stories have been published yet. Please check back soon.'; return; }
+      state.style.display = 'none';
+      data.posts.forEach(function (p) {
+        var a = el('a', 'story-card');
+        a.href = 'stories.html?id=' + encodeURIComponent(p.id);
+        if (p.cover) {
+          var img = el('img', 'story-thumb'); img.loading = 'lazy'; img.alt = ''; img.src = imgUrl(p.cover);
+          a.appendChild(img);
+        } else { a.appendChild(el('div', 'story-thumb-empty', 'WOFHRAD-SL')); }
+        var body = el('div', 'story-body');
+        body.appendChild(el('span', 'story-date', fmtDate(p.date)));
+        body.appendChild(el('h3', null, p.title));
+        body.appendChild(el('p', null, p.excerpt));
+        body.appendChild(el('span', 'story-more', 'Read story \u2192'));
+        a.appendChild(body);
+        grid.appendChild(a);
+      });
+    }).catch(function () {
+      state.textContent = 'Stories could not be loaded right now. Please try again later.';
+    });
+  }
+
+  /* ---------- single story ---------- */
+  function shareButton(label, href) {
+    var a = el('a', 'share-btn', label);
+    a.href = href; a.target = '_blank'; a.rel = 'noopener noreferrer';
+    return a;
+  }
+
+  function showStory(post) {
+    document.title = post.title + ' | WOFHRAD-SL';
+    listView.style.display = 'none';
+    hero.style.display = 'none';
+    storyView.style.display = 'block';
+
+    var back = el('a', 'back-link', '\u2190 All stories'); back.href = 'stories.html';
+    article.appendChild(back);
+    article.appendChild(el('span', 'story-date', fmtDate(post.publishedAt || post.createdAt)));
+    article.appendChild(el('h1', null, post.title));
+
+    if (post.cover) {
+      var c = el('img', 'story-cover'); c.alt = post.title; c.src = imgUrl(post.cover);
+      article.appendChild(c);
+    }
+    var text = el('div', 'story-text');
+    post.body.split(/\n{2,}/).forEach(function (para) {
+      var p = document.createElement('p');
+      para.split('\n').forEach(function (line, i) {
+        if (i) p.appendChild(document.createElement('br'));
+        p.appendChild(document.createTextNode(line));
+      });
+      text.appendChild(p);
+    });
+    article.appendChild(text);
+
+    var extra = (post.images || []).filter(function (i) { return i !== post.cover; });
+    if (extra.length) {
+      var gal = el('div', 'story-gallery');
+      extra.forEach(function (i) {
+        var a = document.createElement('a'); a.href = imgUrl(i); a.target = '_blank'; a.rel = 'noopener noreferrer';
+        var im = document.createElement('img'); im.loading = 'lazy'; im.alt = 'Photo from: ' + post.title; im.src = imgUrl(i);
+        a.appendChild(im); gal.appendChild(a);
+      });
+      article.appendChild(gal);
+    }
+
+    var shareUrl = location.origin + '/share/' + post.id;
+    var row = el('div', 'share-row');
+    row.appendChild(el('strong', null, 'Share this story'));
+    row.appendChild(shareButton('WhatsApp', 'https://wa.me/?text=' + encodeURIComponent(post.title + ' ' + shareUrl)));
+    row.appendChild(shareButton('Facebook', 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(shareUrl)));
+    row.appendChild(shareButton('X', 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(post.title) + '&url=' + encodeURIComponent(shareUrl)));
+    var copy = el('button', 'share-btn', 'Copy link'); copy.type = 'button';
+    copy.addEventListener('click', function () {
+      var done = function () { copy.textContent = 'Link copied'; setTimeout(function () { copy.textContent = 'Copy link'; }, 2000); };
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(shareUrl).then(done, function () { window.prompt('Copy this link:', shareUrl); });
+      else window.prompt('Copy this link:', shareUrl);
+    });
+    row.appendChild(copy);
+    article.appendChild(row);
+    window.scrollTo(0, 0);
+  }
+
+  function showMissing() {
+    listView.style.display = 'none';
+    hero.style.display = 'none';
+    storyView.style.display = 'block';
+    var back = el('a', 'back-link', '\u2190 All stories'); back.href = 'stories.html';
+    article.appendChild(back);
+    article.appendChild(el('h1', null, 'Story not found'));
+    article.appendChild(el('p', 'story-state', 'This story may have been removed or is not published yet.'));
+  }
+
+  if (id) {
+    fetch('/api/posts?id=' + encodeURIComponent(id)).then(function (r) { return r.ok ? r.json() : Promise.reject(); }).then(showStory).catch(showMissing);
+  } else { showList(); }
+})();
+</script>
+</body>
+</html>

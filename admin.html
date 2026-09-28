@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Admin | WOFHRAD-SL</title>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src https://fonts.gstatic.com; img-src 'self' blob: data:; connect-src 'self';" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin: 0; font-family: 'DM Sans', sans-serif; background: #F8FAFC; color: #1e293b; -webkit-font-smoothing: antialiased; }
+    h1, h2, h3 { font-family: 'Playfair Display', serif; color: #0D2B6B; margin: 0; }
+    .bar { background: #0D2B6B; color: #fff; padding: .9rem 1.25rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+    .bar strong { font-family: 'Playfair Display', serif; font-size: 1.15rem; }
+    .bar small { opacity: .7; margin-left: .5rem; font-size: .75rem; letter-spacing: .1em; text-transform: uppercase; }
+    .bar a, .bar button { color: #fff; font: 600 .82rem 'DM Sans', sans-serif; text-decoration: none; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.25); padding: .45rem 1rem; border-radius: 9999px; cursor: pointer; }
+    .bar a:hover, .bar button:hover { background: rgba(255,255,255,.25); }
+    .bar-actions { display: flex; gap: .6rem; }
+    main { max-width: 980px; margin: 0 auto; padding: 1.75rem 1.25rem 4rem; }
+    .panel { background: #fff; border: 1px solid #e2e8f0; border-radius: 1.1rem; padding: 1.5rem; }
+    .login { max-width: 420px; margin: 4rem auto 0; }
+    .login h1 { font-size: 1.6rem; margin-bottom: .4rem; }
+    .muted { color: #64748b; font-size: .88rem; line-height: 1.6; }
+    label { display: block; font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #475569; margin: 1.1rem 0 .4rem; }
+    input[type=text], input[type=password], textarea, select {
+      width: 100%; padding: .75rem .9rem; border: 1.5px solid #cbd5e1; border-radius: .7rem; font: 500 .95rem 'DM Sans', sans-serif; color: #1e293b; background: #fff;
+    }
+    textarea { resize: vertical; line-height: 1.7; }
+    input:focus, textarea:focus, select:focus { outline: none; border-color: #1565C0; box-shadow: 0 0 0 3px rgba(21,101,192,.15); }
+    .btn { display: inline-block; border: none; cursor: pointer; font: 700 .88rem 'DM Sans', sans-serif; padding: .75rem 1.6rem; border-radius: 9999px; background: #1565C0; color: #fff; text-decoration: none; transition: background .2s, transform .2s; }
+    .btn:hover { background: #0D2B6B; transform: translateY(-1px); }
+    .btn:disabled { opacity: .55; cursor: wait; transform: none; }
+    .btn-ghost { background: #fff; color: #1565C0; border: 1.5px solid #1565C0; }
+    .btn-ghost:hover { background: #E3F2FD; }
+    .btn-danger { background: #fff; color: #C62828; border: 1.5px solid #C62828; padding: .4rem 1rem; font-size: .78rem; }
+    .btn-danger:hover { background: #FFEBEE; }
+    .btn-small { padding: .4rem 1rem; font-size: .78rem; }
+    .msg { margin-top: 1rem; font-size: .88rem; font-weight: 600; min-height: 1.2em; }
+    .msg.err { color: #C62828; } .msg.ok { color: #2E7D32; }
+    .tabs { display: flex; gap: .4rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
+    .tab { border: 1.5px solid #cbd5e1; background: #fff; color: #475569; font: 700 .82rem 'DM Sans', sans-serif; padding: .55rem 1.2rem; border-radius: 9999px; cursor: pointer; }
+    .tab.active { background: #1565C0; border-color: #1565C0; color: #fff; }
+    .row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .95rem 0; border-bottom: 1px solid #f1f5f9; flex-wrap: wrap; }
+    .row:last-child { border-bottom: none; }
+    .row-title { font-weight: 700; color: #0D2B6B; overflow-wrap: anywhere; }
+    .row-meta { font-size: .78rem; color: #64748b; margin-top: .2rem; }
+    .row-actions { display: flex; gap: .5rem; flex-wrap: wrap; }
+    .badge { display: inline-block; font-size: .62rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; padding: .15rem .6rem; border-radius: 9999px; margin-right: .5rem; vertical-align: middle; }
+    .badge.pub { background: rgba(46,125,50,.1); color: #2E7D32; } .badge.draft { background: #FFF8E1; color: #F57F17; }
+    .head-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; }
+    .thumbs { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: .5rem; }
+    .thumb { position: relative; width: 120px; }
+    .thumb img { width: 120px; height: 90px; object-fit: cover; border-radius: .6rem; display: block; border: 1px solid #e2e8f0; }
+    .thumb button { position: absolute; top: -8px; right: -8px; width: 24px; height: 24px; border-radius: 50%; border: none; background: #C62828; color: #fff; font-weight: 700; cursor: pointer; line-height: 1; }
+    .thumb span { display: block; font-size: .68rem; color: #64748b; margin-top: .25rem; }
+    .radio-row { display: flex; gap: 1.5rem; flex-wrap: wrap; margin-top: .3rem; }
+    .radio-row label { margin: 0; text-transform: none; letter-spacing: 0; font-size: .92rem; color: #1e293b; display: flex; align-items: center; gap: .5rem; font-weight: 600; }
+    .count { float: right; font-weight: 500; text-transform: none; letter-spacing: 0; color: #94a3b8; }
+    .hidden { display: none !important; }
+    .stat { font-family: 'Playfair Display', serif; font-size: 2rem; color: #1565C0; font-weight: 900; }
+  </style>
+</head>
+<body>
+
+<div class="bar">
+  <div><strong>WOFHRAD-SL</strong><small>Admin</small></div>
+  <div class="bar-actions">
+    <a href="stories.html">View stories</a>
+    <button type="button" id="logout" class="hidden">Log out</button>
+  </div>
+</div>
+
+<main>
+
+  <!-- LOGIN -->
+  <section id="login-view" class="panel login">
+    <h1>Admin login</h1>
+    <p class="muted">Only WOFHRAD-SL administrators can post stories and manage the newsletter.</p>
+    <form id="login-form">
+      <label for="password">Password</label>
+      <input type="password" id="password" autocomplete="current-password" required />
+      <div style="margin-top:1.25rem"><button class="btn" type="submit" id="login-btn">Log in</button></div>
+      <p class="msg" id="login-msg" role="alert"></p>
+    </form>
+  </section>
+
+  <!-- DASHBOARD -->
+  <div id="app" class="hidden">
+    <div class="tabs" role="tablist">
+      <button class="tab active" data-tab="stories" role="tab">Stories</button>
+      <button class="tab" data-tab="editor" role="tab" id="tab-editor">New story</button>
+      <button class="tab" data-tab="msgs" role="tab">Messages</button>
+      <button class="tab" data-tab="subs" role="tab">Subscribers</button>
+      <button class="tab" data-tab="news" role="tab">Newsletter</button>
+    </div>
+
+    <!-- Stories list -->
+    <section id="tab-stories" class="panel">
+      <div class="head-row">
+        <h2 style="font-size:1.4rem">All stories</h2>
+        <button class="btn" type="button" id="new-story">+ New story</button>
+      </div>
+      <div id="story-list"><p class="muted">Loading...</p></div>
+    </section>
+
+    <!-- Editor -->
+    <section id="tab-editor-panel" class="panel hidden">
+      <h2 style="font-size:1.4rem" id="editor-title">New story</h2>
+      <form id="story-form" novalidate>
+        <label for="title">Title <span class="count" id="title-count">0/150</span></label>
+        <input type="text" id="title" maxlength="150" required />
+
+        <label for="excerpt">Short summary (optional) <span class="count" id="excerpt-count">0/300</span></label>
+        <textarea id="excerpt" rows="2" maxlength="300"></textarea>
+        <p class="muted" style="margin:.3rem 0 0">Shown on story cards. If left empty, the start of the story is used.</p>
+
+        <label for="body">Story</label>
+        <textarea id="body" rows="14" maxlength="30000" required></textarea>
+        <p class="muted" style="margin:.3rem 0 0">Leave a blank line between paragraphs.</p>
+
+        <label>Cover photo</label>
+        <input type="file" id="cover-file" accept="image/jpeg,image/png,image/webp" />
+        <div class="thumbs" id="cover-thumb"></div>
+
+        <label>More photos (up to 11)</label>
+        <input type="file" id="more-files" accept="image/jpeg,image/png,image/webp" multiple />
+        <div class="thumbs" id="more-thumbs"></div>
+        <p class="muted" id="upload-note" style="margin:.4rem 0 0"></p>
+
+        <label>When you save</label>
+        <div class="radio-row">
+          <label><input type="radio" name="status" value="published" checked /> Publish now</label>
+          <label><input type="radio" name="status" value="draft" /> Save as draft (only you can see it)</label>
+        </div>
+
+        <div style="margin-top:1.5rem;display:flex;gap:.7rem;flex-wrap:wrap">
+          <button class="btn" type="submit" id="save-btn">Save story</button>
+          <button class="btn btn-ghost" type="button" id="cancel-edit">Cancel</button>
+        </div>
+        <p class="msg" id="editor-msg" role="status"></p>
+      </form>
+    </section>
+
+    <!-- Messages from the contact form -->
+    <section id="tab-msgs" class="panel hidden">
+      <div class="head-row">
+        <div><div class="stat" id="msg-count">0</div><div class="muted">messages from the contact form</div></div>
+        <button class="btn btn-ghost" type="button" id="refresh-msgs">Refresh</button>
+      </div>
+      <div id="msg-list"><p class="muted">Loading...</p></div>
+      <p class="msg" id="msgs-msg" role="status"></p>
+    </section>
+
+    <!-- Subscribers -->
+    <section id="tab-subs" class="panel hidden">
+      <div class="head-row">
+        <div><div class="stat" id="sub-count">0</div><div class="muted">newsletter subscribers</div></div>
+        <button class="btn btn-ghost" type="button" id="export-csv">Download list (CSV)</button>
+      </div>
+      <div id="sub-list"><p class="muted">Loading...</p></div>
+      <p class="msg" id="subs-msg" role="status"></p>
+    </section>
+
+    <!-- Newsletter -->
+    <section id="tab-news" class="panel hidden">
+      <h2 style="font-size:1.4rem">Send a newsletter</h2>
+      <p class="muted" style="margin-top:.4rem">This emails everyone who has subscribed. Each email includes an unsubscribe link.</p>
+      <form id="news-form" novalidate>
+        <label for="n-subject">Subject</label>
+        <input type="text" id="n-subject" maxlength="150" />
+        <label for="n-story">Add a link to a story (optional)</label>
+        <select id="n-story"><option value="">Choose a published story...</option></select>
+        <label for="n-message">Message</label>
+        <textarea id="n-message" rows="12"></textarea>
+        <p class="muted" style="margin:.3rem 0 0">Leave a blank line between paragraphs.</p>
+        <div style="margin-top:1.5rem"><button class="btn" type="submit" id="send-btn">Send to subscribers</button></div>
+        <p class="msg" id="news-msg" role="status"></p>
+      </form>
+    </section>
+  </div>
+</main>
+
+<script>
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  var token = sessionStorage.getItem('wofhrad_admin') || '';
+  var editing = null;      // story being edited (null = new)
+  var cover = null;        // image id
+  var more = [];           // image ids
+  var fresh = [];          // ids uploaded in this editing session and not yet saved
+  var stories = [];
+
+  function api(path, opts) {
+    opts = opts || {};
+    opts.headers = Object.assign({}, opts.headers || {}, token ? { Authorization: 'Bearer ' + token } : {});
+    return fetch(path, opts).then(function (res) {
+      if (res.status === 401 && token && path !== '/api/login') { logout('Your session ended. Please log in again.'); throw new Error('Please log in again.'); }
+      return res;
+    });
+  }
+  function jsonOrError(res) {
+    return res.json().catch(function () { return {}; }).then(function (d) {
+      if (!res.ok) throw new Error(d.error || 'Something went wrong. Please try again.');
+      return d;
+    });
+  }
+  function say(el, text, kind) { el.textContent = text; el.className = 'msg' + (kind ? ' ' + kind : ''); }
+  function fmtDate(iso) { return iso ? new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : ''; }
+  function mk(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+  function imgUrl(id) { return '/api/image?id=' + encodeURIComponent(id); }
+
+  /* ---------- login / logout ---------- */
+  function showApp() {
+    $('login-view').classList.add('hidden');
+    $('app').classList.remove('hidden');
+    $('logout').classList.remove('hidden');
+    loadStories();
+  }
+  function logout(message) {
+    token = ''; sessionStorage.removeItem('wofhrad_admin');
+    $('app').classList.add('hidden'); $('logout').classList.add('hidden');
+    $('login-view').classList.remove('hidden');
+    $('password').value = '';
+    say($('login-msg'), message || '', message ? 'err' : '');
+  }
+  $('logout').addEventListener('click', function () { logout(''); });
+
+  $('login-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var btn = $('login-btn'); btn.disabled = true; say($('login-msg'), 'Checking...', '');
+    fetch('/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password: $('password').value }) })
+      .then(jsonOrError)
+      .then(function (d) { token = d.token; sessionStorage.setItem('wofhrad_admin', token); say($('login-msg'), '', ''); showApp(); })
+      .catch(function (err) {
+        say($('login-msg'), err.message === 'Failed to fetch' ? 'Cannot reach the server. This page needs to be hosted on Netlify (see the setup guide).' : err.message, 'err');
+      })
+      .then(function () { btn.disabled = false; });
+  });
+
+  /* ---------- tabs ---------- */
+  var panels = { stories: 'tab-stories', editor: 'tab-editor-panel', msgs: 'tab-msgs', subs: 'tab-subs', news: 'tab-news' };
+  function openTab(name) {
+    Object.keys(panels).forEach(function (k) { $(panels[k]).classList.toggle('hidden', k !== name); });
+    document.querySelectorAll('.tab').forEach(function (t) { t.classList.toggle('active', t.getAttribute('data-tab') === name); });
+    if (name === 'subs') loadSubs();
+    if (name === 'msgs') loadMsgs();
+    if (name === 'news') fillStoryPicker();
+  }
+  document.querySelectorAll('.tab').forEach(function (t) {
+    t.addEventListener('click', function () {
+      var name = t.getAttribute('data-tab');
+      if (name === 'editor') { startEditor(null); return; }
+      if (name !== 'editor' && !$('tab-editor-panel').classList.contains('hidden')) discardFresh();
+      openTab(name);
+    });
+  });
+
+  /* ---------- stories list ---------- */
+  function loadStories() {
+    api('/api/posts?all=1').then(jsonOrError).then(function (d) {
+      stories = d.posts; renderStories();
+    }).catch(function (err) { $('story-list').textContent = err.message; });
+  }
+  function renderStories() {
+    var box = $('story-list'); box.textContent = '';
+    if (!stories.length) { box.appendChild(mk('p', 'muted', 'No stories yet. Press "New story" to write your first one.')); return; }
+    stories.forEach(function (s) {
+      var row = mk('div', 'row');
+      var left = mk('div');
+      var t = mk('div', 'row-title');
+      t.appendChild(mk('span', 'badge ' + (s.status === 'published' ? 'pub' : 'draft'), s.status === 'published' ? 'Published' : 'Draft'));
+      t.appendChild(document.createTextNode(s.title));
+      left.appendChild(t);
+      left.appendChild(mk('div', 'row-meta', fmtDate(s.date)));
+      var actions = mk('div', 'row-actions');
+      if (s.status === 'published') {
+        var v = mk('a', 'btn btn-ghost btn-small', 'View'); v.href = 'stories.html?id=' + encodeURIComponent(s.id); v.target = '_blank'; v.rel = 'noopener';
+        actions.appendChild(v);
+      }
+      var ed = mk('button', 'btn btn-ghost btn-small', 'Edit'); ed.type = 'button';
+      ed.addEventListener('click', function () { editStory(s.id); });
+      var del = mk('button', 'btn btn-danger', 'Delete'); del.type = 'button';
+      del.addEventListener('click', function () {
+        if (!confirm('Delete "' + s.title + '"? This cannot be undone.')) return;
+        api('/api/posts?id=' + encodeURIComponent(s.id), { method: 'DELETE' }).then(jsonOrError).then(loadStories).catch(function (err) { alert(err.message); });
+      });
+      actions.appendChild(ed); actions.appendChild(del);
+      row.appendChild(left); row.appendChild(actions);
+      box.appendChild(row);
+    });
+  }
+  $('new-story').addEventListener('click', function () { startEditor(null); });
+
+  /* ---------- editor ---------- */
+  function counter(input, out, max) { out.textContent = input.value.length + '/' + max; }
+  $('title').addEventListener('input', function () { counter($('title'), $('title-count'), 150); });
+  $('excerpt').addEventListener('input', function () { counter($('excerpt'), $('excerpt-count'), 300); });
+
+  function thumb(id, onRemove) {
+    var w = mk('div', 'thumb');
+    var im = document.createElement('img'); im.src = imgUrl(id); im.alt = 'Uploaded photo';
+    var x = mk('button', null, '\u00d7'); x.type = 'button'; x.setAttribute('aria-label', 'Remove photo');
+    x.addEventListener('click', onRemove);
+    w.appendChild(im); w.appendChild(x);
+    return w;
+  }
+  function renderThumbs() {
+    var c = $('cover-thumb'); c.textContent = '';
+    if (cover) { var w = thumb(cover, function () { removeImage(cover); cover = null; renderThumbs(); }); w.appendChild(mk('span', null, 'Cover')); c.appendChild(w); }
+    var m = $('more-thumbs'); m.textContent = '';
+    more.forEach(function (id) { m.appendChild(thumb(id, function () { removeImage(id); more = more.filter(function (x) { return x !== id; }); renderThumbs(); })); });
+  }
+  function removeImage(id) {
+    var i = fresh.indexOf(id);
+    if (i > -1) { fresh.splice(i, 1); api('/api/image?id=' + encodeURIComponent(id), { method: 'DELETE' }); }
+  }
+  function discardFresh() {
+    fresh.splice(0).forEach(function (id) { api('/api/image?id=' + encodeURIComponent(id), { method: 'DELETE' }).catch(function () {}); });
+  }
+
+  function startEditor(story) {
+    discardFresh();
+    editing = story;
+    $('editor-title').textContent = story ? 'Edit story' : 'New story';
+    $('title').value = story ? story.title : '';
+    $('excerpt').value = story ? story.excerpt || '' : '';
+    $('body').value = story ? story.body : '';
+    cover = story ? story.cover || null : null;
+    more = story ? (story.images || []).filter(function (i) { return i !== story.cover; }) : [];
+    document.querySelector('input[name=status][value=' + (story && story.status === 'draft' ? 'draft' : 'published') + ']').checked = true;
+    $('cover-file').value = ''; $('more-files').value = '';
+    say($('editor-msg'), '', ''); say($('upload-note'), '', ''); $('upload-note').className = 'muted';
+    counter($('title'), $('title-count'), 150); counter($('excerpt'), $('excerpt-count'), 300);
+    renderThumbs(); openTab('editor');
+    $('title').focus();
+  }
+  function editStory(id) {
+    api('/api/posts?id=' + encodeURIComponent(id)).then(jsonOrError).then(startEditor).catch(function (err) { alert(err.message); });
+  }
+
+  /* Shrink photos in the browser first so uploads are fast on mobile data. */
+  function shrink(file) {
+    if (!/^image\/(jpeg|png|webp)$/.test(file.type)) return Promise.reject(new Error('"' + file.name + '" is not a JPG, PNG or WebP photo.'));
+    var load = window.createImageBitmap ? createImageBitmap(file) : new Promise(function (ok, no) {
+      var im = new Image(); im.onload = function () { ok(im); }; im.onerror = no; im.src = URL.createObjectURL(file);
+    });
+    return load.then(function (bmp) {
+      var w = bmp.width, h = bmp.height, s = Math.min(1, 1600 / Math.max(w, h));
+      var c = document.createElement('canvas'); c.width = Math.round(w * s); c.height = Math.round(h * s);
+      var g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height); g.drawImage(bmp, 0, 0, c.width, c.height);
+      return new Promise(function (ok, no) { c.toBlob(function (b) { b ? ok(b) : no(new Error('Could not prepare the photo.')); }, 'image/jpeg', 0.82); });
+    });
+  }
+  function upload(file) {
+    return shrink(file).then(function (blob) {
+      return api('/api/image', { method: 'POST', headers: { 'Content-Type': 'image/jpeg' }, body: blob });
+    }).then(jsonOrError).then(function (d) { fresh.push(d.id); return d.id; });
+  }
+  $('cover-file').addEventListener('change', function (e) {
+    var f = e.target.files[0]; if (!f) return;
+    say($('upload-note'), 'Uploading cover photo...', ''); 
+    upload(f).then(function (id) { if (cover) removeImage(cover); cover = id; renderThumbs(); $('upload-note').textContent = ''; })
+      .catch(function (err) { $('upload-note').textContent = err.message; })
+      .then(function () { e.target.value = ''; });
+  });
+  $('more-files').addEventListener('change', function (e) {
+    var files = Array.prototype.slice.call(e.target.files); if (!files.length) return;
+    var room = 11 - more.length;
+    if (files.length > room) { $('upload-note').textContent = 'Only ' + room + ' more photo(s) can be added.'; files = files.slice(0, Math.max(room, 0)); }
+    var chain = Promise.resolve(); var errors = [];
+    files.forEach(function (f, i) {
+      chain = chain.then(function () {
+        $('upload-note').textContent = 'Uploading photo ' + (i + 1) + ' of ' + files.length + '...';
+        return upload(f).then(function (id) { more.push(id); renderThumbs(); }).catch(function (err) { errors.push(err.message); });
+      });
+    });
+    chain.then(function () { $('upload-note').textContent = errors.join(' '); e.target.value = ''; });
+  });
+
+  $('cancel-edit').addEventListener('click', function () { discardFresh(); openTab('stories'); });
+
+  $('story-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var status = document.querySelector('input[name=status]:checked').value;
+    var payload = { title: $('title').value.trim(), excerpt: $('excerpt').value.trim(), body: $('body').value, status: status, cover: cover, images: more };
+    if (!payload.title) { say($('editor-msg'), 'Please add a title.', 'err'); return; }
+    if (!payload.body.trim()) { say($('editor-msg'), 'Please write the story.', 'err'); return; }
+    var btn = $('save-btn'); btn.disabled = true; say($('editor-msg'), 'Saving...', '');
+    var url = '/api/posts' + (editing ? '?id=' + encodeURIComponent(editing.id) : '');
+    api(url, { method: editing ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+      .then(jsonOrError)
+      .then(function () { fresh = []; say($('editor-msg'), '', ''); loadStories(); openTab('stories'); })
+      .catch(function (err) { say($('editor-msg'), err.message, 'err'); })
+      .then(function () { btn.disabled = false; });
+  });
+
+  /* ---------- messages from the contact form ---------- */
+  function loadMsgs() {
+    say($('msgs-msg'), '', '');
+    api('/api/messages').then(jsonOrError).then(function (d) {
+      $('msg-count').textContent = d.count;
+      var box = $('msg-list'); box.textContent = '';
+      if (!d.messages.length) { box.appendChild(mk('p', 'muted', 'No messages yet.')); return; }
+      d.messages.forEach(function (m) {
+        var row = mk('div', 'row');
+        var left = mk('div'); left.style.flex = '1 1 380px'; left.style.minWidth = '0';
+        left.appendChild(mk('div', 'row-title', m.subject || '(no subject)'));
+        var meta = mk('div', 'row-meta');
+        meta.appendChild(document.createTextNode(m.name + ' \u00b7 '));
+        var mail = mk('a', null, m.email); mail.href = 'mailto:' + encodeURIComponent(m.email).replace('%40', '@') + '?subject=' + encodeURIComponent('Re: ' + (m.subject || 'Your message to WOFHRAD-SL'));
+        meta.appendChild(mail);
+        meta.appendChild(document.createTextNode(' \u00b7 ' + fmtDate(m.receivedAt)));
+        left.appendChild(meta);
+        var text = mk('p', 'muted', m.message); text.style.whiteSpace = 'pre-wrap'; text.style.overflowWrap = 'anywhere'; text.style.margin = '.6rem 0 0';
+        left.appendChild(text);
+        var rm = mk('button', 'btn btn-danger', 'Delete'); rm.type = 'button';
+        rm.addEventListener('click', function () {
+          if (!confirm('Delete this message from ' + m.name + '?')) return;
+          api('/api/messages?id=' + encodeURIComponent(m.id), { method: 'DELETE' }).then(jsonOrError).then(loadMsgs).catch(function (err) { say($('msgs-msg'), err.message, 'err'); });
+        });
+        row.appendChild(left); row.appendChild(rm); box.appendChild(row);
+      });
+    }).catch(function (err) { $('msg-list').textContent = err.message; });
+  }
+  $('refresh-msgs').addEventListener('click', loadMsgs);
+
+  /* ---------- subscribers ---------- */
+  function loadSubs() {
+    say($('subs-msg'), '', '');
+    api('/api/subscribers').then(jsonOrError).then(function (d) {
+      $('sub-count').textContent = d.count;
+      var box = $('sub-list'); box.textContent = '';
+      if (!d.subscribers.length) { box.appendChild(mk('p', 'muted', 'No one has subscribed yet.')); return; }
+      d.subscribers.forEach(function (s) {
+        var row = mk('div', 'row');
+        var left = mk('div'); left.appendChild(mk('div', 'row-title', s.email)); left.appendChild(mk('div', 'row-meta', 'Subscribed ' + fmtDate(s.subscribedAt)));
+        var rm = mk('button', 'btn btn-danger', 'Remove'); rm.type = 'button';
+        rm.addEventListener('click', function () {
+          if (!confirm('Remove ' + s.email + ' from the newsletter?')) return;
+          api('/api/subscribers?email=' + encodeURIComponent(s.email), { method: 'DELETE' }).then(jsonOrError).then(loadSubs).catch(function (err) { say($('subs-msg'), err.message, 'err'); });
+        });
+        row.appendChild(left); row.appendChild(rm); box.appendChild(row);
+      });
+    }).catch(function (err) { $('sub-list').textContent = err.message; });
+  }
+  $('export-csv').addEventListener('click', function () {
+    api('/api/subscribers?format=csv').then(function (res) {
+      if (!res.ok) throw new Error('Could not download the list.');
+      return res.blob();
+    }).then(function (blob) {
+      var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'wofhrad-subscribers.csv';
+      document.body.appendChild(a); a.click(); a.remove();
+    }).catch(function (err) { say($('subs-msg'), err.message, 'err'); });
+  });
+
+  /* ---------- newsletter ---------- */
+  function fillStoryPicker() {
+    var sel = $('n-story'); sel.length = 1;
+    stories.filter(function (s) { return s.status === 'published'; }).forEach(function (s) {
+      var o = document.createElement('option'); o.value = s.id; o.textContent = s.title; sel.appendChild(o);
+    });
+  }
+  $('n-story').addEventListener('change', function () {
+    var id = $('n-story').value; if (!id) return;
+    var s = stories.filter(function (x) { return x.id === id; })[0];
+    var link = 'Read the full story: ' + location.origin + '/share/' + id;
+    var m = $('n-message'); m.value = (m.value.trim() ? m.value.trim() + '\n\n' : '') + (s ? s.title + '\n' : '') + link;
+    if (!$('n-subject').value.trim() && s) $('n-subject').value = s.title;
+    $('n-story').value = '';
+  });
+  $('news-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var subject = $('n-subject').value.trim(), message = $('n-message').value.trim();
+    if (!subject || !message) { say($('news-msg'), 'Please add a subject and a message.', 'err'); return; }
+    api('/api/subscribers').then(jsonOrError).then(function (d) {
+      if (!d.count) throw new Error('There are no subscribers yet.');
+      if (!confirm('Send "' + subject + '" to ' + d.count + ' subscriber' + (d.count === 1 ? '' : 's') + '? This cannot be undone.')) return null;
+      var btn = $('send-btn'); btn.disabled = true; say($('news-msg'), 'Sending...', '');
+      return api('/api/newsletter', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ subject: subject, message: message }) })
+        .then(jsonOrError).then(function (r) {
+          if (r.failed) say($('news-msg'), 'Sent to ' + r.sent + ' subscribers. ' + r.failed + ' could not be sent. ' + (r.error || ''), 'err');
+          else { say($('news-msg'), 'Sent to ' + r.sent + ' subscriber' + (r.sent === 1 ? '' : 's') + '.', 'ok'); $('n-subject').value = ''; $('n-message').value = ''; }
+        }).then(function () { btn.disabled = false; }, function (err) { btn.disabled = false; throw err; });
+    }).catch(function (err) { say($('news-msg'), err.message, 'err'); });
+  });
+
+  if (token) showApp();
+})();
+</script>
+</body>
+</html>

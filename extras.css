@@ -1,0 +1,68 @@
+/* Stories, newsletter and subscribe form. Uses the site's existing palette. */
+.hp { position: absolute !important; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+
+/* Story cards */
+.story-grid { display: grid; gap: 1.5rem; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); }
+.story-card {
+  display: flex; flex-direction: column; background: #fff; border: 1px solid #e2e8f0; border-radius: 1.25rem;
+  overflow: hidden; text-decoration: none; color: inherit;
+  transition: transform .35s ease, box-shadow .35s ease, border-color .35s ease;
+}
+.story-card:hover { transform: translateY(-6px); box-shadow: 0 20px 40px rgba(0,0,0,.1); border-color: transparent; }
+.story-thumb { aspect-ratio: 16 / 10; width: 100%; object-fit: cover; display: block; background: #E3F2FD; }
+.story-thumb-empty { aspect-ratio: 16 / 10; background: linear-gradient(135deg, #1565C0, #0D2B6B); display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,.85); font-family: 'Playfair Display', serif; font-weight: 700; font-size: 1.4rem; }
+.story-body { padding: 1.25rem 1.4rem 1.5rem; display: flex; flex-direction: column; gap: .5rem; flex: 1; }
+.story-date { font-size: .7rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #2E7D32; }
+.story-card h3 { font-size: 1.15rem; line-height: 1.35; color: #0D2B6B; margin: 0; }
+.story-card p { font-size: .88rem; line-height: 1.7; color: #64748b; margin: 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.story-more { margin-top: auto; padding-top: .5rem; font-size: .82rem; font-weight: 700; color: #1565C0; }
+.story-state { text-align: center; color: #64748b; padding: 3rem 1rem; font-size: .95rem; }
+
+/* Single story */
+.story-article { max-width: 760px; margin: 0 auto; }
+.story-article .story-date { display: block; margin-bottom: .75rem; }
+.story-article h1 { font-size: clamp(1.8rem, 4.5vw, 2.6rem); line-height: 1.2; color: #0D2B6B; margin: 0 0 1.5rem; }
+.story-cover { width: 100%; height: auto; max-height: 460px; object-fit: cover; border-radius: 1.25rem; margin-bottom: 2rem; }
+.story-text p { font-size: 1.06rem; line-height: 1.9; color: #334155; margin: 0 0 1.4rem; overflow-wrap: anywhere; }
+.story-gallery { display: grid; gap: .85rem; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); margin: 2rem 0; }
+.story-gallery a { display: block; border-radius: 1rem; overflow: hidden; }
+.story-gallery img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; display: block; transition: transform .4s ease; }
+.story-gallery a:hover img { transform: scale(1.04); }
+.share-row { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; margin: 2.25rem 0 0; padding-top: 1.5rem; border-top: 1px solid #e2e8f0; }
+.share-row strong { font-size: .8rem; letter-spacing: .08em; text-transform: uppercase; color: #475569; margin-right: .4rem; }
+.share-btn { border: 1.5px solid #cbd5e1; background: #fff; color: #0D2B6B; font: 600 .8rem 'DM Sans', sans-serif; padding: .5rem 1rem; border-radius: 9999px; text-decoration: none; cursor: pointer; transition: all .2s ease; }
+.share-btn:hover { background: #1565C0; border-color: #1565C0; color: #fff; }
+.back-link { display: inline-block; margin-bottom: 1.5rem; font-size: .85rem; font-weight: 700; color: #1565C0; text-decoration: none; }
+.back-link:hover { text-decoration: underline; }
+
+/* Subscribe form */
+.subscribe-form { display: flex; flex-wrap: wrap; gap: .7rem; justify-content: center; max-width: 560px; margin: 0 auto; }
+.subscribe-form input[type="email"] {
+  flex: 1 1 260px; min-width: 0; padding: .85rem 1.25rem; border-radius: 9999px; border: 2px solid transparent;
+  font: 500 .95rem 'DM Sans', sans-serif; color: #1e293b; background: #fff;
+}
+.subscribe-form input[type="email"]:focus { outline: none; border-color: #F9A825; }
+.subscribe-form button { border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+.subscribe-form button:disabled { opacity: .6; cursor: wait; }
+.subscribe-msg { flex-basis: 100%; margin: .25rem 0 0; font-size: .85rem; min-height: 1.3em; text-align: center; color: rgba(255,255,255,.85); }
+.subscribe-msg.ok { color: #A5D6A7; font-weight: 600; }
+.subscribe-msg.err { color: #FFCDD2; font-weight: 600; }
+.on-light .subscribe-msg { color: #64748b; }
+.on-light .subscribe-msg.ok { color: #2E7D32; }
+.on-light .subscribe-msg.err { color: #C62828; }
+.on-light .subscribe-form input[type="email"] { border-color: #cbd5e1; }
+
+/* Newsletter band */
+.newsletter-band { background: linear-gradient(135deg, #1565C0, #0D2B6B); padding: 4rem 1.25rem; position: relative; overflow: hidden; }
+.newsletter-band::before { content: ''; position: absolute; inset: 0; opacity: .07; background-image: radial-gradient(circle, #fff 1px, transparent 0); background-size: 30px 30px; }
+.newsletter-inner { position: relative; z-index: 1; max-width: 700px; margin: 0 auto; text-align: center; }
+.newsletter-inner h2 { color: #fff; font-size: clamp(1.5rem, 3.8vw, 2.2rem); margin: 0 0 .75rem; }
+.newsletter-inner > p { color: rgba(255,255,255,.82); line-height: 1.75; margin: 0 0 1.75rem; }
+.newsletter-fine { font-size: .72rem; color: rgba(255,255,255,.55); margin: .9rem 0 0; }
+
+/* Latest stories on the homepage */
+.latest-stories { background: #fff; padding: 5rem 1.25rem; }
+.latest-stories[hidden] { display: none; }
+
+/* Contact form error message */
+.form-error { display: none; margin-top: 1rem; padding: .8rem 1rem; border-radius: .7rem; background: #FFEBEE; color: #C62828; font-size: .85rem; font-weight: 600; line-height: 1.5; }
