@@ -1,6 +1,6 @@
 // Runs every API function against an in-memory database. Nothing is sent anywhere.
 process.env.WOFHRAD_MEMORY_DB = "1";
-process.env.ADMIN_PASSWORD = "@2006";
+process.env.ADMIN_PASSWORD = "test-only-password-not-real";
 process.env.RESEND_API_KEY = "test-key";
 process.env.NEWSLETTER_FROM = "WOFHRAD-SL <news@example.org>";
 
@@ -21,13 +21,13 @@ let r = await login(req("/api/login", { method: "POST", body: JSON.stringify({ p
 ok(r.status === 401, "wrong password rejected");
 r = await login(req("/api/login", { method: "GET" }), {});
 ok(r.status === 405, "login rejects GET");
-r = await login(req("/api/login", { method: "POST", body: JSON.stringify({ password: "@2006" }) }), { ip: "2.2.2.2" });
+r = await login(req("/api/login", { method: "POST", body: JSON.stringify({ password: "test-only-password-not-real" }) }), { ip: "2.2.2.2" });
 const { token } = await r.json();
 ok(r.status === 200 && token, "correct password returns a token");
 
 // lockout after 5 wrong attempts from one IP
 for (let i = 0; i < 5; i++) await login(req("/api/login", { method: "POST", body: JSON.stringify({ password: "x" + i }) }), { ip: "9.9.9.9" });
-r = await login(req("/api/login", { method: "POST", body: JSON.stringify({ password: "@2006" }) }), { ip: "9.9.9.9" });
+r = await login(req("/api/login", { method: "POST", body: JSON.stringify({ password: "test-only-password-not-real" }) }), { ip: "9.9.9.9" });
 ok(r.status === 429, "IP locked after 5 wrong attempts (even with right password)");
 
 // ---- auth on protected endpoints ----

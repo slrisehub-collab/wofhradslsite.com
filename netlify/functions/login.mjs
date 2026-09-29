@@ -1,6 +1,6 @@
 import { store } from "../lib/db.mjs";
 import { adminConfigured, passwordOk, signToken } from "../lib/auth.mjs";
-import { HttpError, json, readJson, sha256hex, wrap } from "../lib/util.mjs";
+import { HttpError, clientIp, json, readJson, sha256hex, wrap } from "../lib/util.mjs";
 
 const MAX_FAILS = 5;
 const LOCK_MS = 15 * 60 * 1000;
@@ -12,7 +12,7 @@ export default wrap(async (req, context) => {
     throw new HttpError(503, "Admin login is not set up yet. Add ADMIN_PASSWORD in your Netlify settings.");
   }
 
-  const ip = context?.ip || req.headers.get("x-nf-client-connection-ip") || "unknown";
+  const ip = clientIp(req, context);
   const key = sha256hex("ip:" + ip);
   const attempts = store("auth-attempts");
   const rec = (await attempts.get(key, { type: "json" })) || { count: 0, until: 0 };

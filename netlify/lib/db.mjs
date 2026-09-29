@@ -33,7 +33,15 @@ function memoryStore(name) {
   };
 }
 
+// On Netlify, credentials are injected automatically and getStore({ name }) just works.
+// On Vercel (or any other host) there is no automatic injection, so the same Netlify
+// Blobs store is reached with an explicit site ID and a Netlify personal access token.
+// This is what lets both deployments share one set of stories, subscribers and images
+// instead of needing two different databases. See README.md for how to create these.
 export function store(name) {
   if (process.env.WOFHRAD_MEMORY_DB === "1") return memoryStore(name);
+  const siteID = process.env.NETLIFY_BLOBS_SITE_ID;
+  const token = process.env.NETLIFY_BLOBS_TOKEN;
+  if (siteID && token) return getStore({ name, siteID, token, consistency: "strong" });
   return getStore({ name, consistency: "strong" });
 }

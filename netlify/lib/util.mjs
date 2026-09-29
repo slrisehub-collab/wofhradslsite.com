@@ -51,3 +51,19 @@ export const esc = (s) =>
     .replace(/'/g, "&#39;");
 
 export const EMAIL_RE = /^[A-Za-z0-9._%+-]{1,64}@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}$/;
+
+// One visitor's address, however the host tells us. Netlify passes context.ip and also
+// sets x-nf-client-connection-ip; Vercel (and most other hosts) only set the standard
+// x-forwarded-for / x-real-ip headers. Without this, every visitor would fall back to
+// the same "unknown" bucket on a host that doesn't set Netlify's own header, and a single
+// wrong password anywhere would lock every visitor's rate limit at once.
+export function clientIp(req, context) {
+  if (context?.ip) return context.ip;
+  const nf = req.headers.get("x-nf-client-connection-ip");
+  if (nf) return nf;
+  const fwd = req.headers.get("x-forwarded-for");
+  if (fwd) return fwd.split(",")[0].trim();
+  const real = req.headers.get("x-real-ip");
+  if (real) return real;
+  return "unknown";
+}

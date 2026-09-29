@@ -1,6 +1,6 @@
 // Loads the real pages in a simulated browser and drives them against the real API code.
 process.env.WOFHRAD_MEMORY_DB = "1";
-process.env.ADMIN_PASSWORD = "@2006";
+process.env.ADMIN_PASSWORD = "test-only-password-not-real";
 import pkg from "jsdom";
 const { JSDOM, VirtualConsole } = pkg;
 import fs from "node:fs";
@@ -62,7 +62,7 @@ async function open(file, search = "") {
   ok($("login-msg").textContent.includes("Incorrect password"), "admin: wrong password shows an error");
   ok($("app").classList.contains("hidden"), "admin: still locked after wrong password");
 
-  $("password").value = "@2006"; $("login-form").dispatchEvent(new w.Event("submit", { cancelable: true }));
+  $("password").value = "test-only-password-not-real"; $("login-form").dispatchEvent(new w.Event("submit", { cancelable: true }));
   await until(() => !$("app").classList.contains("hidden"));
   ok(!$("app").classList.contains("hidden"), "admin: correct password opens dashboard");
 
@@ -166,7 +166,7 @@ async function open(file, search = "") {
 
 // subscriber was stored
 {
-  const r = await handlers["/api/login"](new Request(ORIGIN + "/api/login", { method: "POST", body: JSON.stringify({ password: "@2006" }) }), { ip: "8.8.8.8" });
+  const r = await handlers["/api/login"](new Request(ORIGIN + "/api/login", { method: "POST", body: JSON.stringify({ password: "test-only-password-not-real" }) }), { ip: "8.8.8.8" });
   const { token } = await r.json();
   const list = await (await handlers["/api/subscribers"](new Request(ORIGIN + "/api/subscribers", { headers: { authorization: "Bearer " + token } }))).json();
   ok(list.count === 1 && list.subscribers[0].email === "reader@example.org", "backend: subscriber from the homepage form was saved");

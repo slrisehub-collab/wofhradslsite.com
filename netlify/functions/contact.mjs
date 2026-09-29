@@ -1,5 +1,5 @@
 import { store } from "../lib/db.mjs";
-import { EMAIL_RE, HttpError, esc, json, newId, readJson, sha256hex, wrap } from "../lib/util.mjs";
+import { EMAIL_RE, HttpError, clientIp, esc, json, newId, readJson, sha256hex, wrap } from "../lib/util.mjs";
 
 const MAX_PER_HOUR = 5;
 
@@ -21,7 +21,7 @@ export default wrap(async (req, context) => {
   if (message.length > 5000) throw new HttpError(400, "The message is too long (5,000 characters at most).");
 
   // Simple limit per visitor so the form cannot be used to flood the inbox.
-  const ip = context?.ip || req.headers.get("x-nf-client-connection-ip") || "unknown";
+  const ip = clientIp(req, context);
   const rateKey = sha256hex("contact:" + ip);
   const rates = store("contact-rate");
   const rec = (await rates.get(rateKey, { type: "json" })) || { count: 0, since: Date.now() };

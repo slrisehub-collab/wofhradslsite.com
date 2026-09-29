@@ -3,9 +3,15 @@ import { esc, isId, wrap } from "../lib/util.mjs";
 
 // /share/<story-id> gives WhatsApp, Facebook and X a page with the story's
 // title, summary and photo, then sends real visitors on to the story.
+//
+// Netlify invokes this function directly for the path "/share/<id>", so the id
+// is the last path segment. Vercel has no equivalent path-based routing for
+// functions outside /api, so vercel.json rewrites "/share/:id" to "/api/share"
+// and Vercel appends the captured id as a query string instead. Checking the
+// query string first makes the same file correct on both.
 export default wrap(async (req) => {
   const url = new URL(req.url);
-  const id = url.pathname.split("/").filter(Boolean).pop();
+  const id = url.searchParams.get("id") || url.pathname.split("/").filter(Boolean).pop();
   const home = new Response(null, { status: 302, headers: { location: "/stories.html" } });
   if (!isId(id)) return home;
 
