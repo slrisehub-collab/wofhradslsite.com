@@ -81,7 +81,7 @@
 
         <label for="body">Story</label>
         <textarea id="body" rows="14" maxlength="30000" required></textarea>
-        <p class="muted" style="margin:.3rem 0 0">Leave a blank line between paragraphs.</p>
+        <p class="muted" style="margin:.3rem 0 0">Leave a blank line between paragraphs. Start a line with <strong>##</strong> for a heading, or <strong>-</strong> for a bullet point. Put <strong>**two stars**</strong> around words to make them bold.</p>
 
         <label for="cover-file">Cover photo</label>
         <input type="file" id="cover-file" accept="image/jpeg,image/png,image/webp" />
@@ -187,6 +187,9 @@
         </div>
         <label for="s-bankDetails">Bank transfer details</label>
         <textarea id="s-bankDetails" rows="4" maxlength="1000" placeholder="Bank, account name, account number, SWIFT/BIC for international transfers"></textarea>
+        <label for="s-whatsapp">WhatsApp number</label>
+        <input type="text" id="s-whatsapp" maxlength="30" placeholder="+232 ..." />
+        <p class="muted" style="margin:.3rem 0 0">Adds a "Chat on WhatsApp" link to the contact section and footer. Include the country code.</p>
         <label for="s-registrationNumber">Registration number</label>
         <input type="text" id="s-registrationNumber" maxlength="100" />
         <div style="margin-top:1.25rem"><button class="btn" type="submit" id="settings-btn">Save</button></div>

@@ -31,14 +31,15 @@
   W.storyCard = function (p) {
     var a = document.createElement('a');
     a.className = 'story-card';
-    a.href = W.storyUrl(p);
-    if (p.cover) {
+    a.href = p.url || W.storyUrl(p);
+    var cover = p.coverUrl || (p.cover ? W.imgUrl(p.cover, true) : null);
+    if (cover) {
       var img = document.createElement('img');
       img.className = 'story-thumb';
       img.loading = 'lazy';
       img.alt = '';
       img.width = 640; img.height = 400;
-      img.src = W.imgUrl(p.cover, true);
+      img.src = cover;
       a.appendChild(img);
     } else {
       var ph = document.createElement('div');
@@ -48,14 +49,16 @@
     }
     var body = document.createElement('div');
     body.className = 'story-body';
-    var d = document.createElement('span'); d.className = 'story-date'; d.textContent = W.fmtDate(p.date);
+    var meta = document.createElement('div'); meta.className = 'story-meta-line';
+    var d = document.createElement('span'); d.textContent = W.fmtDate(p.date); meta.appendChild(d);
+    if (p.readingMinutes) { var m0 = document.createElement('span'); m0.className = 'mins'; m0.textContent = p.readingMinutes + ' min read'; meta.appendChild(m0); }
     if (p.programme && W.PROGRAMMES[p.programme]) {
-      var t = document.createElement('span'); t.className = 'story-tag'; t.textContent = W.PROGRAMMES[p.programme]; d.appendChild(t);
+      var t = document.createElement('span'); t.className = 'story-tag'; t.textContent = W.PROGRAMMES[p.programme]; meta.appendChild(t);
     }
     var h = document.createElement('h3'); h.textContent = p.title;
     var x = document.createElement('p'); x.textContent = p.excerpt;
     var m = document.createElement('span'); m.className = 'story-more'; m.textContent = 'Read story →';
-    body.appendChild(d); body.appendChild(h); body.appendChild(x); body.appendChild(m);
+    body.appendChild(meta); body.appendChild(h); body.appendChild(x); body.appendChild(m);
     a.appendChild(body);
     return a;
   };
@@ -178,4 +181,59 @@
         .then(function () { btn.disabled = false; });
     });
   });
+
+  /* Photo galleries: open photos in an accessible lightbox instead of leaving the page. */
+  var galleries = document.querySelectorAll('[data-lightbox]');
+  if (galleries.length && typeof HTMLDialogElement === 'function') {
+    var dlg = document.createElement('dialog');
+    dlg.className = 'lightbox';
+    dlg.setAttribute('aria-label', 'Photo viewer');
+    dlg.innerHTML = '<div class="lightbox-inner"><img alt="" /><p></p>' +
+      '<button type="button" class="lb-close" aria-label="Close">×</button>' +
+      '<button type="button" class="lb-prev" aria-label="Previous photo">‹</button>' +
+      '<button type="button" class="lb-next" aria-label="Next photo">›</button></div>';
+    document.body.appendChild(dlg);
+    var lbImg = dlg.querySelector('img'), lbText = dlg.querySelector('p'), items = [], at = 0, opener = null;
+    var show = function (i) {
+      at = (i + items.length) % items.length;
+      var link = items[at], alt = link.querySelector('img').alt;
+      lbImg.src = link.getAttribute('href'); lbImg.alt = alt;
+      lbText.textContent = alt + ' (' + (at + 1) + ' of ' + items.length + ')';
+    };
+    dlg.querySelector('.lb-close').addEventListener('click', function () { dlg.close(); });
+    dlg.querySelector('.lb-prev').addEventListener('click', function () { show(at - 1); });
+    dlg.querySelector('.lb-next').addEventListener('click', function () { show(at + 1); });
+    dlg.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowLeft') show(at - 1);
+      if (e.key === 'ArrowRight') show(at + 1);
+    });
+    dlg.addEventListener('click', function (e) { if (e.target === dlg || e.target.classList.contains('lightbox-inner')) dlg.close(); });
+    dlg.addEventListener('close', function () { if (opener) opener.focus(); });
+    galleries.forEach(function (g) {
+      var links = Array.prototype.slice.call(g.querySelectorAll('a.gallery-item'));
+      links.forEach(function (link, i) {
+        link.addEventListener('click', function (e) {
+          if (!dlg.showModal) return; // very old browsers just open the photo
+          e.preventDefault();
+          items = links; opener = link; show(i); dlg.showModal();
+        });
+      });
+    });
+  }
+
+  /* WhatsApp: shown only when the team has saved a number in the admin settings. */
+  var waLinks = document.querySelectorAll('[data-whatsapp]');
+  if (waLinks.length) {
+    fetch('/api/settings').then(function (r) { return r.ok ? r.json() : Promise.reject(); }).then(function (s) {
+      var n = String(s.whatsapp || '').replace(/[^0-9]/g, '');
+      if (n.length < 8) return;
+      waLinks.forEach(function (a) { a.href = 'https://wa.me/' + n; a.target = '_blank'; a.rel = 'noopener noreferrer'; a.hidden = false; });
+      document.querySelectorAll('[data-whatsapp-wrap]').forEach(function (el) { el.hidden = false; });
+    }).catch(function () {});
+  }
+
+  /* Offline support: keeps pages you have visited available without a connection. */
+  if ('serviceWorker' in navigator && location.protocol === 'https:') {
+    window.addEventListener('load', function () { navigator.serviceWorker.register('/sw.js').catch(function () {}); });
+  }
 })();

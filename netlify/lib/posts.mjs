@@ -1,16 +1,21 @@
 import { store, readAll, update } from "./db.mjs";
+import { plainText, readingMinutes } from "./render.mjs";
+import ARCHIVE from "./archive-index.mjs";
 
 export const PROGRAMMES = ["icsp", "girls-circle", "people-to-people", "gesa", "peacebuilding"];
 
 export const sortKey = (p) => p.publishedAt || p.createdAt;
 
 export function summary(p) {
-  const flat = p.body.replace(/\s+/g, " ");
+  const flat = plainText(p.body);
   return {
     id: p.id,
     title: p.title,
     excerpt: p.excerpt || flat.slice(0, 180) + (flat.length > 180 ? "…" : ""),
     cover: p.cover,
+    coverUrl: p.cover ? `/api/image?id=${p.cover}&size=sm` : null,
+    url: `/stories/${p.id}`,
+    readingMinutes: readingMinutes(p.body),
     programme: p.programme || null,
     status: p.status,
     date: sortKey(p),
@@ -48,4 +53,13 @@ export async function indexRemove(id) {
     list = list || (await rebuildIndex());
     return list.filter((x) => x.id !== id);
   });
+}
+
+// Stories carried over from the old website live in content/stories/ and are built into
+// static pages. They are merged into every list here so visitors see one set of stories.
+export const archive = () => ARCHIVE;
+
+export async function listAll({ includeDrafts = false } = {}) {
+  const live = (await readIndex()).filter((p) => includeDrafts || p.status === "published");
+  return sorted([...live, ...ARCHIVE]);
 }

@@ -40,6 +40,9 @@ const contact = await fn("contact"), messages = await fn("messages"), story = aw
 const settings = await fn("settings"), documents = await fn("documents"), activity = await fn("activity");
 const sitemap = await fn("sitemap");
 const { cleanup } = await import("../netlify/functions/cleanup.mjs");
+const ARCHIVE = (await import("../netlify/lib/archive-index.mjs")).default;
+const A = ARCHIVE.length;
+const feed = await fn("feed");
 const { store } = await import("../netlify/lib/db.mjs");
 
 const doLogin = (body, ip) => login(post("/api/login", body), { ip });
@@ -122,17 +125,17 @@ ok(r.status === 201 && !draft.publishedAt, "admin can save a draft");
 
 r = await posts(req("/api/posts"));
 let data = await r.json();
-ok(data.total === 1 && data.posts[0].id === p1.id, "public list shows only published stories");
+ok(data.total === A + 1 && data.posts.some((p) => p.id === p1.id) && !data.posts.some((p) => p.id === draft.id), "public list shows published stories (new and archived), never drafts");
 ok(!("body" in data.posts[0]), "list does not include full body");
 ok(/s-maxage/.test(r.headers.get("netlify-cdn-cache-control") || ""), "public list can be cached by the CDN");
 r = await posts(req("/api/posts?programme=peacebuilding"));
-ok((await r.json()).total === 0, "programme filter works");
+ok((await r.json()).posts.every((p) => p.programme === "peacebuilding"), "programme filter works");
 r = await posts(req("/api/posts?id=" + draft.id));
 ok(r.status === 404, "public cannot open a draft");
 r = await posts(req("/api/posts?all=1"));
-ok((await r.json()).posts.length === 1, "public cannot use all=1 to see drafts");
+ok(!(await r.json()).posts.some((p) => p.id === draft.id), "public cannot use all=1 to see drafts");
 r = await posts(req("/api/posts?all=1", { headers: auth(token) }));
-ok((await r.json()).posts.length === 2 && r.headers.get("cache-control") === "no-store", "admin sees drafts too, never cached");
+ok((await r.json()).posts.some((p) => p.id === draft.id) && r.headers.get("cache-control") === "no-store", "admin sees drafts too, never cached");
 
 r = await posts(req("/api/posts?id=" + draft.id, { method: "PUT", headers: auth(token), body: JSON.stringify({ title: "Now live", body: "hidden no more", status: "published", expectedUpdatedAt: draft.updatedAt }) }));
 const upd = await r.json();
@@ -141,12 +144,12 @@ r = await posts(req("/api/posts?id=" + draft.id, { method: "PUT", headers: auth(
 ok(r.status === 409, "saving over someone else's newer changes is refused");
 r = await posts(req("/api/posts?limit=1&offset=1"));
 data = await r.json();
-ok(data.total === 2 && data.posts.length === 1, "paging with limit and offset works");
+ok(data.total === A + 2 && data.posts.length === 1, "paging with limit and offset works");
 
 // the index rebuilds itself if it goes missing
 await store("post-index").delete("all");
 r = await posts(req("/api/posts"));
-ok((await r.json()).total === 2, "story index rebuilds itself from the stories");
+ok((await r.json()).total === A + 2, "story index rebuilds itself from the stories");
 
 // removing an image from a story deletes it and its small copy
 await posts(req("/api/posts?id=" + p1.id, { method: "PUT", headers: auth(token), body: JSON.stringify({ title: "T", body: "b", cover: null, images: [] }) }));
@@ -308,6 +311,34 @@ data = await r.json();
 ok(data.items.some((a) => a.user === "Simeon" && a.action === "Published a story") && data.items.some((a) => a.action === "Published a document"), "activity log records who did what");
 r = await activity(req("/api/activity", { headers: auth(editorToken) }));
 ok(r.status === 403, "only administrators see the activity log");
+
+
+// ---- stories carried over from the old website ----
+ok(A === 18 && ARCHIVE.every((p) => p.url === "/stories/" + p.id && p.status === "published"), "all 18 stories from the old website are in the archive");
+r = await posts(req("/api/posts?q=ebola"));
+data = await r.json();
+ok(data.total === 1 && data.posts[0].id === "ebola-food-support-sponsored-children", "search finds stories by their words");
+r = await posts(req("/api/posts?year=2013&limit=50"));
+data = await r.json();
+ok(data.total > 5 && data.posts.every((p) => p.date.startsWith("2013")) && data.years.includes("2023"), "year filter works and lists the available years");
+r = await posts(req("/api/posts?exclude=the-road-to-kamakwie&limit=50"));
+ok(!(await r.json()).posts.some((p) => p.id === "the-road-to-kamakwie"), "a story can be left out of 'more stories'");
+r = await story(req("/stories/leadership-training-women-candidates-2023"));
+page = await r.text();
+ok(r.status === 200 && page.includes("<h1>Leadership training for women candidates in six districts</h1>") && page.includes("<h2>Why train women candidates?</h2>") && page.includes("<ul><li><strong>Empowerment.</strong>"), "archived story page renders headings, lists and bold text");
+ok(page.includes("/assets/content/img-20230601-wa0089.webp") && page.includes('class="gallery" data-lightbox') && page.includes("newsfeedsl.com"), "archived story page shows its photos and the news coverage link");
+ok(!/wofhrad\.com|i0\.wp\.com/.test(page), "archived story page never sends readers to the old website");
+ok(page.includes('og:image" content="' + B + '/assets/content/img-20230601-wa0089.webp"'), "archived story previews with its own photo when shared");
+r = await feed(req("/feed.xml"));
+const rss = await r.text();
+ok(r.headers.get("content-type").startsWith("application/rss+xml") && rss.includes("<title>Leadership training for women candidates in six districts</title>") && (rss.match(/<item>/g) || []).length <= 30, "RSS feed lists the latest stories");
+{
+  const { renderBody } = await import("../netlify/lib/render.mjs");
+  const out = renderBody("## Hi <b>\n\n- one\n- **two**\n\nPlain <script>x</script>");
+  ok(out === "<h2>Hi &lt;b&gt;</h2>\n<ul><li>one</li><li><strong>two</strong></li></ul>\n<p>Plain &lt;script&gt;x&lt;/script&gt;</p>", "story formatting supports headings, lists and bold, and escapes everything else");
+}
+r = await settings(req("/api/settings", { method: "PUT", headers: auth(token), body: JSON.stringify({ whatsapp: "call me" }) }));
+ok(r.status === 400, "WhatsApp setting must be a phone number");
 
 // ---- daily clean-up ----
 {

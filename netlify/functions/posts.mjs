@@ -1,7 +1,7 @@
 import { store } from "../lib/db.mjs";
 import { currentUser, requireUser } from "../lib/auth.mjs";
 import { logActivity } from "../lib/activity.mjs";
-import { PROGRAMMES, indexPut, indexRemove, readIndex } from "../lib/posts.mjs";
+import { PROGRAMMES, indexPut, indexRemove, listAll } from "../lib/posts.mjs";
 import { HttpError, cdnCache, isId, json, newId, purge, readJson, wrap } from "../lib/util.mjs";
 
 const MAX_TITLE = 150;
@@ -53,10 +53,16 @@ export default wrap(async (req) => {
     const limit = Math.min(Math.max(parseInt(url.searchParams.get("limit") || "50", 10) || 50, 1), includeAll ? 1000 : 50);
     const offset = Math.max(parseInt(url.searchParams.get("offset") || "0", 10) || 0, 0);
     const programme = url.searchParams.get("programme");
-    const list = (await readIndex())
-      .filter((p) => includeAll || p.status === "published")
-      .filter((p) => !programme || p.programme === programme);
-    return json({ total: list.length, posts: list.slice(offset, offset + limit) }, 200, includeAll ? {} : cdnCache(["posts"]));
+    const q = (url.searchParams.get("q") || "").trim().toLowerCase().slice(0, 100);
+    const year = url.searchParams.get("year");
+    const exclude = url.searchParams.get("exclude");
+    let list = (await listAll({ includeDrafts: includeAll }))
+      .filter((p) => !programme || p.programme === programme)
+      .filter((p) => !exclude || p.id !== exclude)
+      .filter((p) => !q || `${p.title} ${p.excerpt}`.toLowerCase().includes(q));
+    const years = [...new Set(list.map((p) => p.date.slice(0, 4)))].sort().reverse();
+    if (year) list = list.filter((p) => p.date.startsWith(year));
+    return json({ total: list.length, years, posts: list.slice(offset, offset + limit) }, 200, includeAll ? {} : cdnCache(["posts"]));
   }
 
   const actor = requireUser(req, "editor");

@@ -110,7 +110,7 @@
       var row = mk('div', 'row');
       var left = mk('div');
       var t = mk('div', 'row-title');
-      t.appendChild(mk('span', 'badge ' + (s.status === 'published' ? 'pub' : 'draft'), s.status === 'published' ? 'Published' : 'Draft'));
+      t.appendChild(mk('span', 'badge ' + (s.archive ? 'archive' : s.status === 'published' ? 'pub' : 'draft'), s.archive ? 'From old website' : s.status === 'published' ? 'Published' : 'Draft'));
       t.appendChild(document.createTextNode(s.title));
       left.appendChild(t);
       left.appendChild(mk('div', 'row-meta', fmtDate(s.date)));
@@ -118,6 +118,11 @@
       if (s.status === 'published') {
         var v = mk('a', 'btn btn-ghost btn-small', 'View'); v.href = '/stories/' + encodeURIComponent(s.id); v.target = '_blank'; v.rel = 'noopener';
         actions.appendChild(v);
+      }
+      if (s.archive) {
+        actions.appendChild(mk('span', 'row-meta', 'Edit in content/stories/' + s.id + '.md'));
+        row.appendChild(left); row.appendChild(actions); box.appendChild(row);
+        return;
       }
       var ed = mk('button', 'btn btn-ghost btn-small', 'Edit'); ed.type = 'button';
       ed.addEventListener('click', function () { editStory(s.id); });
@@ -386,7 +391,7 @@
   /* ---------- newsletter ---------- */
   function fillStoryPicker() {
     var sel = $('n-story'); sel.length = 1;
-    stories.filter(function (s) { return s.status === 'published'; }).forEach(function (s) {
+    stories.filter(function (s) { return s.status === 'published'; }).slice(0, 60).forEach(function (s) {
       var o = document.createElement('option'); o.value = s.id; o.textContent = s.title; sel.appendChild(o);
     });
   }
@@ -454,7 +459,7 @@
   }
 
   /* ---------- settings ---------- */
-  var SETTINGS = ['donateLink', 'orangeMoney', 'afrimoney', 'bankDetails', 'registrationNumber'];
+  var SETTINGS = ['donateLink', 'orangeMoney', 'afrimoney', 'bankDetails', 'whatsapp', 'registrationNumber'];
   function loadSettings() {
     say($('settings-msg'), '', '');
     fetch('/api/settings', { cache: 'no-store' }).then(jsonOrError).then(function (s) {

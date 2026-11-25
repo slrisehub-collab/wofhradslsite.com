@@ -9,6 +9,7 @@ const FIELDS = {
   orangeMoney: 300,
   afrimoney: 300,
   bankDetails: 1000,
+  whatsapp: 30,             // WhatsApp number shown as a chat link across the site
   registrationNumber: 100,
 };
 
@@ -33,6 +34,7 @@ export default wrap(async (req) => {
       if (v.length > max) throw new HttpError(400, `"${k}" is too long (${max} characters at most).`);
       next[k] = v;
     }
+    if (next.whatsapp && !/^\+?[0-9 ()-]{8,30}$/.test(next.whatsapp)) throw new HttpError(400, "Please enter the WhatsApp number with the country code, for example +232 76 335 749.");
     if (next.donateLink) {
       let u;
       try { u = new URL(next.donateLink); } catch { throw new HttpError(400, "The online donation link must be a full web address starting with https://"); }

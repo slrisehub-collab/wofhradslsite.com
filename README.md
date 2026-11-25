@@ -7,8 +7,10 @@ the newsletter.
 ## Project layout
 
 ```
+content/stories/        the stories carried over from the old website, one text file each
 src/                    the website's source
-  *.html                one file per page (index, stories, donate, partners, reports, privacy, admin, 404)
+  *.html                one file per page (index, about, stories, donate, partners, reports, privacy, admin...)
+  programmes/           one page per programme
   partials/             the parts every page shares: <head>, navigation, footer, newsletter band
   assets/               CSS, JavaScript, fonts, photos and partner logos
 site.config.json        organisation name, email, phone, address and social links (used on every page)
@@ -24,6 +26,29 @@ every page updates on the next deploy. To change the email address, phone number
 everywhere, edit `site.config.json`.
 
 Don't edit anything in `dist/`. It is rebuilt on every deploy.
+
+### Stories from the old website
+
+All 18 stories from the old WordPress site (2013 to 2023) were edited and moved into
+`content/stories/`, with their photos in `src/assets/content/`. Nothing on this site links back to
+the old site, so it can be switched off. Each file looks like this:
+
+```
+---
+title: The road to Kamakwie
+date: 2013-10-23
+programme: peacebuilding          (optional: icsp, girls-circle, people-to-people, gesa, peacebuilding)
+excerpt: One or two sentences shown on story cards.
+cover: dscf0747                   (optional: one of the images below)
+images:
+  - dscf0747 | Alt text describing the photo for people who can't see it
+---
+The story. A blank line starts a new paragraph. ## starts a heading, - starts a bullet point.
+```
+
+These stories appear alongside the ones staff write in the admin panel (in lists, search, the
+sitemap and the RSS feed), but they are edited here, in the repository, not in the admin panel.
+New stories should be written in the admin panel.
 
 ## Hosting on Netlify (recommended)
 
@@ -109,11 +134,24 @@ sites. Unless you have a strong reason, host on Netlify only. If you do use Verc
   drops or the email service has a problem, the newsletter pauses and can be resumed from the list
   below it. Nobody receives it twice.
 - **Settings:** the online donation link (Flutterwave, Stripe Payment Links, Donorbox or similar),
-  Orange Money and Afrimoney numbers, bank details, and the registration number. Whatever you fill
+  Orange Money and Afrimoney numbers, bank details, a WhatsApp number (adds "Chat on WhatsApp"
+  links), and the registration number. Whatever you fill
   in appears on the Donate and Reports pages straight away. Check account numbers carefully.
 - **Activity:** a log of logins and changes, kept for a year.
 
+Story text in the admin panel can use simple formatting: a line starting with `##` becomes a
+heading, lines starting with `-` become bullet points, and `**words**` become bold.
+
 A daily job deletes photos that were uploaded but never used in a story, and old security records.
+
+## Features at a glance
+
+- Programme pages with photo galleries (photos open full-size in a viewer, no new tab).
+- Story search, year and programme filters, reading time, related stories, print button.
+- An RSS feed of stories at `/feed.xml` for partners and journalists.
+- Works on slow or interrupted connections: once someone has visited, pages and photos they have
+  seen still open offline, and the site can be added to a phone's home screen.
+- Every page tested at phone width, with keyboard access, alt text and readable contrast.
 
 ## Donations
 
@@ -144,7 +182,10 @@ image, no inline scripts, no third-party scripts and no broken internal links.
   2,250+ girls, 8 chiefdoms, 6 districts) and the 58% poverty figure, which is quoted from Trócaire.
   The Human Development Index, life expectancy and election figures were checked against UNDP,
   World Bank and Inter-Parliamentary Union sources in November 2026.
-- Confirm that the partner logos may be used, and say which partners are current.
 - Move to an email address on your own domain, then update `site.config.json`.
-- Check the Facebook, Instagram and X links in `site.config.json` still point to your accounts.
+- The Facebook, Instagram and X links were taken from the old site's footer. Check they are still
+  your accounts.
+- Check the team list on the About page against the old site: it listed a Fatima D. Kamara
+  (Project Officer), who is not on this site, and gave Manty Koroma and Benjamin Fornah the title
+  Field Officer.
 - Have someone review the privacy policy (`src/privacy.html`).

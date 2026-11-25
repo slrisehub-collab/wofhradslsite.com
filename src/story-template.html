@@ -2,12 +2,21 @@
 <!--head-->
   <meta property="article:published_time" content="__STORY_DATE__" />
 <!--/head-->
-<main id="main" tabindex="-1">
-<section class="section" style="background:#fff;padding-top:8rem;" aria-label="Story">
+<main id="main" tabindex="-1" data-story="__STORY_ID__" data-programme="__STORY_PROGRAMME__">
+<section class="section" style="background:#fff;padding-top:clamp(8rem,13vw,10rem);" aria-label="Story">
   <div class="section-inner">
     <article class="story-article" id="story-article">
 <!--STORY_BODY-->
     </article>
+  </div>
+</section>
+<section class="section related" id="related" hidden aria-labelledby="related-heading">
+  <div class="section-inner">
+    <div class="section-head center">
+      <span class="section-label">Keep Reading</span>
+      <h2 id="related-heading">More stories</h2>
+    </div>
+    <div class="story-grid"></div>
   </div>
 </section>
 </main>

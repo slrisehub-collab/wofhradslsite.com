@@ -69,3 +69,4 @@ input[type=email], input[type=url], input[type=file] { width: 100%; }
 input[type=email], input[type=url] { padding: .75rem .9rem; border: 1.5px solid #cbd5e1; border-radius: .7rem; font: 500 .95rem 'DM Sans', sans-serif; color: #1e293b; background: #fff; }
 .tab:focus-visible, .btn:focus-visible, a:focus-visible, button:focus-visible { outline: 3px solid #F9A825; outline-offset: 2px; }
 .legend-label { display: block; font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #475569; margin: 1.1rem 0 .4rem; padding: 0; }
+.badge.archive { background: #E3F2FD; color: #1565C0; }
