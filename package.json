@@ -3,12 +3,14 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "WOFHRAD-SL website with stories, admin login and newsletter",
+  "description": "WOFHRAD-SL website: stories, reports, donations, newsletter and admin",
   "dependencies": {
-    "@netlify/blobs": "^8.1.0"
+    "@netlify/blobs": "^11.1.11",
+    "@netlify/functions": "^6.1.2"
   },
   "scripts": {
-    "test": "node test/run.mjs && node test/dom.mjs"
+    "build": "node scripts/build.mjs",
+    "test": "npm run build --silent && node test/run.mjs && node test/dom.mjs"
   },
   "devDependencies": {
     "jsdom": "^30.1.0"

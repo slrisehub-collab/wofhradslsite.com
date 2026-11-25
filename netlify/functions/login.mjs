@@ -1,39 +1,52 @@
-import { store } from "../lib/db.mjs";
-import { adminConfigured, passwordOk, signToken } from "../lib/auth.mjs";
-import { HttpError, clientIp, json, readJson, sha256hex, wrap } from "../lib/util.mjs";
+import { store, update } from "../lib/db.mjs";
+import { MIN_PASSWORD, adminConfigured, findUser, passwordOk, signToken } from "../lib/auth.mjs";
+import { logActivity } from "../lib/activity.mjs";
+import { HttpError, clientIp, json, readJson, sha256hex, sleep, wrap } from "../lib/util.mjs";
 
-const MAX_FAILS = 5;
+const MAX_FAILS = 5;                 // wrong passwords from one address before it is locked
+const GLOBAL_MAX_FAILS = 50;         // wrong passwords from everywhere before all logins pause
 const LOCK_MS = 15 * 60 * 1000;
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+// Records one failed attempt and says whether this address (or everyone) is now locked.
+// Each attempt is recorded BEFORE the password is checked, using conditional writes, so
+// firing many guesses at once cannot get around the limit.
+async function reserveAttempt(key) {
+  let blocked = false;
+  await update(store("auth-attempts"), key, (rec) => {
+    const now = Date.now();
+    if (!rec || (now - rec.since > LOCK_MS && !(rec.until > now))) rec = { count: 0, since: now, until: 0 };
+    if (rec.until > now) { blocked = true; return undefined; }
+    const count = rec.count + 1;
+    const limit = key === "global" ? GLOBAL_MAX_FAILS : MAX_FAILS;
+    return { count, since: rec.since, until: count >= limit ? now + LOCK_MS : 0 };
+  });
+  return blocked;
+}
 
 export default wrap(async (req, context) => {
   if (req.method !== "POST") throw new HttpError(405, "Method not allowed.");
-  if (!adminConfigured()) {
-    throw new HttpError(503, "Admin login is not set up yet. Add ADMIN_PASSWORD in your Netlify settings.");
-  }
+  if (!adminConfigured()) throw new HttpError(503, "Admin login is not set up yet. Add ADMIN_PASSWORD in your Netlify settings.");
 
-  const ip = clientIp(req, context);
-  const key = sha256hex("ip:" + ip);
-  const attempts = store("auth-attempts");
-  const rec = (await attempts.get(key, { type: "json" })) || { count: 0, until: 0 };
-  if (rec.until > Date.now()) {
+  const { name, password } = await readJson(req, 2000);
+  const ipKey = sha256hex("ip:" + clientIp(req, context));
+
+  if ((await reserveAttempt(ipKey)) || (await reserveAttempt("global"))) {
     throw new HttpError(429, "Too many wrong attempts. Please try again in 15 minutes.");
   }
 
-  const { password } = await readJson(req, 2000);
-  if (passwordOk(password)) {
-    if (rec.count) await attempts.delete(key);
-    return json({ token: signToken(), expiresInHours: 12 });
+  const user = findUser(name);
+  if (user && passwordOk(user, password)) {
+    if (user.password.length < MIN_PASSWORD) {
+      throw new HttpError(403, `For security, admin passwords must be at least ${MIN_PASSWORD} characters. Please set a longer password in your Netlify environment variables, then redeploy.`);
+    }
+    // A correct password clears this address's count (the global count is left to expire).
+    await store("auth-attempts").delete(ipKey);
+    await logActivity(user, "Logged in");
+    return json({ token: signToken(user), name: user.name, role: user.role, expiresInHours: 12 });
   }
 
-  rec.count += 1;
-  if (rec.count >= MAX_FAILS) {
-    rec.until = Date.now() + LOCK_MS;
-    rec.count = 0;
-  }
-  await attempts.setJSON(key, rec);
-  await sleep(500);
-  throw new HttpError(401, "Incorrect password.");
+  await sleep(400);
+  throw new HttpError(401, name ? "Incorrect name or password." : "Incorrect password.");
 });
 
 export const config = { path: "/api/login" };

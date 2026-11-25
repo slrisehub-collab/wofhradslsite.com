@@ -1,5 +1,5 @@
 import { store } from "../lib/db.mjs";
-import { requireAdmin } from "../lib/auth.mjs";
+import { requireUser } from "../lib/auth.mjs";
 import { HttpError, isId, json, newId, wrap } from "../lib/util.mjs";
 
 const MAX_BYTES = 2.5 * 1024 * 1024;
@@ -13,40 +13,52 @@ function sniff(buf) {
   return null;
 }
 
+// Image ids never change and their bytes never change, so browsers and the CDN can keep
+// them for a year. This saves a function call and a storage read on every view.
+const IMMUTABLE = {
+  "cache-control": "public, max-age=31536000, immutable",
+  "netlify-cdn-cache-control": "public, durable, max-age=31536000, immutable",
+  "x-content-type-options": "nosniff",
+};
+
 export default wrap(async (req) => {
   const images = store("images");
+  const url = new URL(req.url);
+  const id = url.searchParams.get("id");
 
   if (req.method === "GET") {
-    const id = new URL(req.url).searchParams.get("id");
     if (!isId(id)) throw new HttpError(404, "Image not found.");
-    const found = await images.getWithMetadata(id, { type: "arrayBuffer" });
+    // size=sm asks for the small version used on story cards; fall back to the full photo.
+    const found = (url.searchParams.get("size") === "sm" && (await images.getWithMetadata(`sm/${id}`, { type: "arrayBuffer" })))
+      || (await images.getWithMetadata(id, { type: "arrayBuffer" }));
     if (!found) throw new HttpError(404, "Image not found.");
-    return new Response(found.data, {
-      headers: {
-        "content-type": found.metadata?.contentType || "image/jpeg",
-        "cache-control": "public, max-age=31536000, immutable",
-        "x-content-type-options": "nosniff",
-      },
-    });
+    return new Response(found.data, { headers: { "content-type": found.metadata?.contentType || "image/jpeg", ...IMMUTABLE } });
   }
 
   if (req.method === "POST") {
-    requireAdmin(req);
+    const user = requireUser(req, "editor");
     const buf = await req.arrayBuffer();
     if (buf.byteLength === 0) throw new HttpError(400, "No image received.");
     if (buf.byteLength > MAX_BYTES) throw new HttpError(413, "That image is too large.");
     const contentType = sniff(buf);
     if (!contentType) throw new HttpError(415, "Please upload a JPG, PNG or WebP image.");
-    const id = newId();
-    await images.set(id, buf, { metadata: { contentType } });
-    return json({ id }, 201);
+    const metadata = { contentType, uploadedAt: new Date().toISOString(), by: user.name };
+    const parent = url.searchParams.get("thumbFor");
+    if (parent) {
+      if (!isId(parent) || !(await images.getMetadata(parent))) throw new HttpError(400, "Upload the full photo first.");
+      await images.set(`sm/${parent}`, buf, { metadata });
+      return json({ id: parent, thumb: true }, 201);
+    }
+    const newIdValue = newId();
+    await images.set(newIdValue, buf, { metadata });
+    return json({ id: newIdValue }, 201);
   }
 
   if (req.method === "DELETE") {
-    requireAdmin(req);
-    const id = new URL(req.url).searchParams.get("id");
+    requireUser(req, "editor");
     if (!isId(id)) throw new HttpError(400, "Invalid image.");
     await images.delete(id);
+    await images.delete(`sm/${id}`);
     return json({ ok: true });
   }
 

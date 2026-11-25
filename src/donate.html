@@ -1,0 +1,140 @@
+<!--meta {"title": "Donate | WOFHRAD-SL", "description": "Support WOFHRAD-SL's work for women's rights, girls' safety and democracy in Sierra Leone.", "path": "/donate.html", "nav": "donate", "scripts": ["donate.js"]} -->
+<main id="main" tabindex="-1">
+<section class="donate-hero" aria-labelledby="donate-heading">
+  <div class="hero-dots" aria-hidden="true"></div>
+  <div class="donate-hero-inner">
+    <div class="donate-copy reveal">
+      <span class="partners-hero-badge">Give &middot; Empower &middot; Transform</span>
+      <h1 id="donate-heading">Stand With <span>Women &amp; Girls</span> in Sierra Leone</h1>
+      <p>Since 2006, WOFHRAD-SL has worked to protect human rights, strengthen justice and put women at the forefront of change, from communities to Parliament. Your gift keeps that work going.</p>
+      <ul class="donate-points">
+        <li>Support safe spaces for girls</li>
+        <li>Back women's leadership and political participation</li>
+        <li>Help communities build lasting peace</li>
+      </ul>
+      <div class="donate-photo">
+        <img src="/assets/img/photos/field-team-640.webp" srcset="/assets/img/photos/field-team-640.webp 640w, /assets/img/photos/field-team-1200.webp 1200w"
+             sizes="(min-width: 960px) 600px, 100vw" width="1200" height="900" alt="WOFHRAD-SL team members working in the field" />
+      </div>
+    </div>
+    <div class="donate-card reveal" style="transition-delay:.15s">
+      <h2>Make a donation</h2>
+
+      <div id="pay-box" hidden>
+        <div class="pay-methods" id="pay-methods"></div>
+        <p class="pay-or">or tell us what you would like to give</p>
+      </div>
+
+      <form id="pledge-form" novalidate>
+        <div class="freq-toggle" role="group" aria-label="Donation frequency">
+          <button type="button" class="freq-btn active" data-freq="one-time" aria-pressed="true">One-time</button>
+          <button type="button" class="freq-btn" data-freq="monthly" aria-pressed="false">Monthly</button>
+        </div>
+        <label for="currency" class="donate-label">Currency</label>
+        <select id="currency" class="donate-select">
+          <option value="SLE">Sierra Leonean Leone (Le)</option>
+          <option value="USD">US Dollar ($)</option>
+          <option value="GBP">Pound Sterling (&pound;)</option>
+          <option value="EUR">Euro (&euro;)</option>
+        </select>
+        <span class="donate-label" id="amount-label">Choose an amount</span>
+        <div class="amount-grid" role="group" aria-labelledby="amount-label" id="amount-grid"></div>
+        <label for="custom-amount" class="donate-label">Or enter your own amount</label>
+        <div class="custom-wrap">
+          <span id="custom-symbol" aria-hidden="true">Le</span>
+          <input type="number" id="custom-amount" min="1" step="1" inputmode="numeric" placeholder="Other amount" />
+        </div>
+        <label for="donor-name" class="donate-label">Your name</label>
+        <input type="text" id="donor-name" class="donate-input" autocomplete="name" maxlength="100" required />
+        <label for="donor-email" class="donate-label">Your email</label>
+        <input type="email" id="donor-email" class="donate-input" autocomplete="email" maxlength="254" required />
+        <label for="donor-phone" class="donate-label">Phone or WhatsApp (optional)</label>
+        <input type="tel" id="donor-phone" class="donate-input" autocomplete="tel" maxlength="40" />
+        <input type="text" name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+        <div class="donate-summary" aria-live="polite" id="donate-summary">Select an amount to continue.</div>
+        <button type="submit" class="btn btn-donate donate-submit" id="donate-submit" disabled>Send my pledge</button>
+        <p class="donate-msg" id="donate-msg" role="status" aria-live="polite"></p>
+        <p class="donate-fineprint">No payment is taken on this page. Our team will contact you with secure payment details (bank transfer or mobile money). <a href="/privacy.html">Privacy policy</a>.</p>
+      </form>
+    </div>
+  </div>
+</section>
+
+<section class="section" style="background:#E3F2FD;" aria-labelledby="gift-heading">
+  <div class="section-inner">
+    <div style="text-align:center;margin-bottom:3rem;" class="reveal">
+      <span class="section-label">Your Impact</span>
+      <h2 id="gift-heading" style="font-size:clamp(1.6rem,4vw,2.5rem);color:#0D2B6B;">What Your Gift Supports</h2>
+    </div>
+    <div class="gift-grid">
+      <article class="gift-card reveal">
+        <span class="gift-num">90</span>
+        <h3>Safe Spaces for Girls</h3>
+        <p>Places where girls can learn, speak openly and build confidence, protected from violence and harmful practices.</p>
+      </article>
+      <article class="gift-card reveal" style="transition-delay:.1s">
+        <span class="gift-num">30%</span>
+        <h3>Women in Leadership</h3>
+        <p>Training and mentoring that help women run for office and take part in governance. In 2023, women won a record 30% of Parliament's elected seats.</p>
+      </article>
+      <article class="gift-card reveal" style="transition-delay:.2s">
+        <span class="gift-num">6</span>
+        <h3>Districts Reached</h3>
+        <p>Human rights education and peacebuilding work in six districts across Sierra Leone.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="section" style="background:#fff;" aria-labelledby="ways-heading">
+  <div class="section-inner">
+    <div style="text-align:center;margin-bottom:3rem;" class="reveal">
+      <span class="section-label">Other Ways to Give</span>
+      <h2 id="ways-heading" style="font-size:clamp(1.6rem,4vw,2.5rem);color:#0D2B6B;">Talk to Our Team</h2>
+    </div>
+    <div class="ways-grid">
+      <a class="way-card reveal" href="mailto:{{email}}?subject=Donation%20enquiry">
+        <h3>Email us</h3><p>{{email}}</p><span>Ask for bank or mobile money details</span>
+      </a>
+      <a class="way-card reveal" style="transition-delay:.1s" href="tel:{{phoneTel}}">
+        <h3>Call us</h3><p>{{phone}}</p><span>Speak with someone about giving</span>
+      </a>
+      <div class="way-card reveal" style="transition-delay:.2s">
+        <h3>Visit us</h3><p>{{address}}</p><span>Drop in to our office</span>
+      </div>
+    </div>
+    <p id="reg-line" class="story-state" hidden></p>
+  </div>
+</section>
+
+<section class="section" style="background:#F8FAFC;" aria-labelledby="faq-heading">
+  <div class="section-inner" style="max-width:820px;">
+    <div style="text-align:center;margin-bottom:2.5rem;" class="reveal">
+      <span class="section-label">Questions</span>
+      <h2 id="faq-heading" style="font-size:clamp(1.6rem,4vw,2.3rem);color:#0D2B6B;">Giving FAQs</h2>
+    </div>
+    <div class="faq reveal">
+      <details>
+        <summary>How do I donate?</summary>
+        <p>If payment options are shown above, you can use them straight away. Otherwise, choose an amount, add your name and email, and press "Send my pledge". Our team will contact you with payment details. You can also email or call us directly.</p>
+      </details>
+      <details>
+        <summary>Can I give every month?</summary>
+        <p>Yes. Select "Monthly" and tell us the amount. Our team will explain how to set up a regular gift.</p>
+      </details>
+      <details>
+        <summary>Can I give in a currency other than Leones?</summary>
+        <p>You can pledge in Leones, US dollars, pounds sterling or euros. Our team will confirm how to send it.</p>
+      </details>
+      <details>
+        <summary>How do I know my gift is used well?</summary>
+        <p>Our annual reports and accounts are published on our <a href="/reports.html">Reports &amp; Accountability</a> page.</p>
+      </details>
+      <details>
+        <summary>I can't give money. How else can I help?</summary>
+        <p>You can partner with us, apply for an internship or volunteer, or share our stories. See <a href="/#get-involved">Get Involved</a>.</p>
+      </details>
+    </div>
+  </div>
+</section>
+</main>

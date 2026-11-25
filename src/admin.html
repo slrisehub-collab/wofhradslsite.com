@@ -1,0 +1,210 @@
+<!--meta {"title": "Admin | WOFHRAD-SL", "path": "/admin.html", "layout": "none", "sitemap": false} -->
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Admin | WOFHRAD-SL</title>
+  <link rel="icon" type="image/png" href="/assets/img/favicon.png" />
+  <link rel="stylesheet" href="/assets/admin.css?v={{build}}" />
+</head>
+<body>
+
+<header class="bar">
+  <div><strong>WOFHRAD-SL</strong><small>Admin</small></div>
+  <div class="bar-actions">
+    <span class="who hidden" id="who"></span>
+    <a href="/" target="_blank" rel="noopener">View site</a>
+    <button type="button" id="logout" class="hidden">Log out</button>
+  </div>
+</header>
+
+<main>
+
+  <!-- LOGIN -->
+  <section id="login-view" class="panel login">
+    <h1>Admin login</h1>
+    <p class="muted">For WOFHRAD-SL staff who post stories and manage the website.</p>
+    <form id="login-form">
+      <label for="login-name">Your name <span class="count">leave empty for the main admin login</span></label>
+      <input type="text" id="login-name" autocomplete="username" />
+      <label for="password">Password</label>
+      <input type="password" id="password" autocomplete="current-password" required />
+      <div style="margin-top:1.25rem"><button class="btn" type="submit" id="login-btn">Log in</button></div>
+      <p class="msg" id="login-msg" role="alert"></p>
+    </form>
+  </section>
+
+  <!-- DASHBOARD -->
+  <div id="app" class="hidden">
+    <nav class="tabs" aria-label="Admin sections">
+      <button type="button" class="tab active" data-tab="stories">Stories</button>
+      <button type="button" class="tab" data-tab="editor" id="tab-editor">New story</button>
+      <button type="button" class="tab" data-tab="msgs">Messages</button>
+      <button type="button" class="tab" data-tab="docs">Reports</button>
+      <button type="button" class="tab admin-only" data-tab="subs">Subscribers</button>
+      <button type="button" class="tab admin-only" data-tab="news">Newsletter</button>
+      <button type="button" class="tab admin-only" data-tab="settings">Settings</button>
+      <button type="button" class="tab admin-only" data-tab="activity">Activity</button>
+    </nav>
+
+    <!-- Stories list -->
+    <section id="tab-stories" class="panel" aria-labelledby="h-stories">
+      <div class="head-row">
+        <h2 id="h-stories" style="font-size:1.4rem">All stories</h2>
+        <button class="btn" type="button" id="new-story">+ New story</button>
+      </div>
+      <div id="story-list"><p class="muted">Loading&hellip;</p></div>
+    </section>
+
+    <!-- Editor -->
+    <section id="tab-editor-panel" class="panel hidden" aria-labelledby="editor-title">
+      <h2 style="font-size:1.4rem" id="editor-title">New story</h2>
+      <form id="story-form" novalidate>
+        <label for="title">Title <span class="count" id="title-count">0/150</span></label>
+        <input type="text" id="title" maxlength="150" required />
+
+        <label for="programme">Programme (optional)</label>
+        <select id="programme">
+          <option value="">Not linked to a programme</option>
+          <option value="icsp">Women's Empowerment (ICSP)</option>
+          <option value="girls-circle">Girls Circle Collective</option>
+          <option value="people-to-people">People to People</option>
+          <option value="gesa">Gender Equality &amp; Accountability</option>
+          <option value="peacebuilding">Peacebuilding</option>
+        </select>
+
+        <label for="excerpt">Short summary (optional) <span class="count" id="excerpt-count">0/300</span></label>
+        <textarea id="excerpt" rows="2" maxlength="300"></textarea>
+        <p class="muted" style="margin:.3rem 0 0">Shown on story cards and when the story is shared. If left empty, the start of the story is used.</p>
+
+        <label for="body">Story</label>
+        <textarea id="body" rows="14" maxlength="30000" required></textarea>
+        <p class="muted" style="margin:.3rem 0 0">Leave a blank line between paragraphs.</p>
+
+        <label for="cover-file">Cover photo</label>
+        <input type="file" id="cover-file" accept="image/jpeg,image/png,image/webp" />
+        <div class="thumbs" id="cover-thumb"></div>
+
+        <label for="more-files">More photos (up to 11)</label>
+        <input type="file" id="more-files" accept="image/jpeg,image/png,image/webp" multiple />
+        <div class="thumbs" id="more-thumbs"></div>
+        <p class="muted" id="upload-note" style="margin:.4rem 0 0" role="status"></p>
+
+        <fieldset style="border:0;padding:0;margin:0">
+          <legend class="legend-label">When you save</legend>
+          <div class="radio-row">
+            <label><input type="radio" name="status" value="published" checked /> Publish now</label>
+            <label><input type="radio" name="status" value="draft" /> Save as draft (only staff can see it)</label>
+          </div>
+        </fieldset>
+
+        <div style="margin-top:1.5rem;display:flex;gap:.7rem;flex-wrap:wrap">
+          <button class="btn" type="submit" id="save-btn">Save story</button>
+          <button class="btn btn-ghost" type="button" id="cancel-edit">Cancel</button>
+        </div>
+        <p class="msg" id="editor-msg" role="status"></p>
+      </form>
+    </section>
+
+    <!-- Messages -->
+    <section id="tab-msgs" class="panel hidden" aria-label="Messages">
+      <div class="head-row">
+        <div><div class="stat" id="msg-count">0</div><div class="muted">messages and donation pledges</div></div>
+        <button class="btn btn-ghost" type="button" id="refresh-msgs">Refresh</button>
+      </div>
+      <div class="filters" id="msg-filters" role="group" aria-label="Show messages about"></div>
+      <div id="msg-list"><p class="muted">Loading&hellip;</p></div>
+      <p class="msg" id="msgs-msg" role="status"></p>
+    </section>
+
+    <!-- Reports (documents) -->
+    <section id="tab-docs" class="panel hidden" aria-labelledby="h-docs">
+      <h2 id="h-docs" style="font-size:1.4rem">Reports &amp; accounts</h2>
+      <p class="muted" style="margin-top:.4rem">PDFs published here appear on the public <a href="/reports.html" target="_blank" rel="noopener">Reports &amp; Accountability</a> page.</p>
+      <form id="doc-form" novalidate>
+        <div class="grid2">
+          <div><label for="doc-title">Title</label><input type="text" id="doc-title" maxlength="150" placeholder="e.g. Annual Report 2025" /></div>
+          <div><label for="doc-year">Year (optional)</label><input type="text" id="doc-year" maxlength="9" placeholder="2025" /></div>
+        </div>
+        <label for="doc-file">PDF file (5 MB at most)</label>
+        <input type="file" id="doc-file" accept="application/pdf" />
+        <div style="margin-top:1rem"><button class="btn" type="submit" id="doc-btn">Publish document</button></div>
+        <p class="msg" id="doc-msg" role="status"></p>
+      </form>
+      <div id="doc-list" style="margin-top:1rem"></div>
+    </section>
+
+    <!-- Subscribers -->
+    <section id="tab-subs" class="panel hidden" aria-label="Subscribers">
+      <div class="head-row">
+        <div><div class="stat" id="sub-count">0</div><div class="muted" id="sub-summary">newsletter subscribers</div></div>
+        <div class="row-actions">
+          <button class="btn btn-ghost" type="button" id="send-confirms">Send confirmation emails</button>
+          <button class="btn btn-ghost" type="button" id="export-csv">Download list (CSV)</button>
+        </div>
+      </div>
+      <p class="help">New subscribers are <strong>pending</strong> until they click the link in their confirmation email. Newsletters go only to <strong>confirmed</strong> subscribers. "Send confirmation emails" re-sends the link to anyone still pending (at most once a day each).</p>
+      <div id="sub-list" style="margin-top:1rem"><p class="muted">Loading&hellip;</p></div>
+      <p class="msg" id="subs-msg" role="status"></p>
+    </section>
+
+    <!-- Newsletter -->
+    <section id="tab-news" class="panel hidden" aria-labelledby="h-news">
+      <h2 id="h-news" style="font-size:1.4rem">Send a newsletter</h2>
+      <p class="muted" style="margin-top:.4rem">This emails every confirmed subscriber. Each email includes an unsubscribe link.</p>
+      <form id="news-form" novalidate>
+        <label for="n-subject">Subject</label>
+        <input type="text" id="n-subject" maxlength="150" />
+        <label for="n-story">Add a link to a story (optional)</label>
+        <select id="n-story"><option value="">Choose a published story&hellip;</option></select>
+        <label for="n-message">Message</label>
+        <textarea id="n-message" rows="12"></textarea>
+        <p class="muted" style="margin:.3rem 0 0">Leave a blank line between paragraphs.</p>
+        <div style="margin-top:1.5rem"><button class="btn" type="submit" id="send-btn">Send to subscribers</button></div>
+      </form>
+      <div id="send-progress" class="hidden" aria-live="polite">
+        <div class="progress"><div id="progress-bar"></div></div>
+        <p class="muted" id="progress-text"></p>
+      </div>
+      <p class="msg" id="news-msg" role="status"></p>
+      <h3 style="font-size:1.1rem;margin-top:2rem">Sent and paused newsletters</h3>
+      <div id="campaign-list"><p class="muted">Loading&hellip;</p></div>
+    </section>
+
+    <!-- Settings -->
+    <section id="tab-settings" class="panel hidden" aria-labelledby="h-settings">
+      <h2 id="h-settings" style="font-size:1.4rem">Donations &amp; organisation details</h2>
+      <p class="muted" style="margin-top:.4rem">Anything you fill in here appears on the public Donate and Reports pages straight away. Leave a box empty to hide it. Double-check account numbers before saving: donors will send money to them.</p>
+      <form id="settings-form" novalidate>
+        <label for="s-donateLink">Online donation link (card payments)</label>
+        <input type="url" id="s-donateLink" maxlength="300" placeholder="https://..." />
+        <p class="muted" style="margin:.3rem 0 0">A payment page from a provider such as Flutterwave, Stripe (Payment Links) or Donorbox.</p>
+        <div class="grid2">
+          <div><label for="s-orangeMoney">Orange Money</label><textarea id="s-orangeMoney" rows="2" maxlength="300" placeholder="Number and account name"></textarea></div>
+          <div><label for="s-afrimoney">Afrimoney</label><textarea id="s-afrimoney" rows="2" maxlength="300" placeholder="Number and account name"></textarea></div>
+        </div>
+        <label for="s-bankDetails">Bank transfer details</label>
+        <textarea id="s-bankDetails" rows="4" maxlength="1000" placeholder="Bank, account name, account number, SWIFT/BIC for international transfers"></textarea>
+        <label for="s-registrationNumber">Registration number</label>
+        <input type="text" id="s-registrationNumber" maxlength="100" />
+        <div style="margin-top:1.25rem"><button class="btn" type="submit" id="settings-btn">Save</button></div>
+        <p class="msg" id="settings-msg" role="status"></p>
+      </form>
+    </section>
+
+    <!-- Activity -->
+    <section id="tab-activity" class="panel hidden" aria-labelledby="h-activity">
+      <div class="head-row">
+        <h2 id="h-activity" style="font-size:1.4rem">Recent activity</h2>
+        <button class="btn btn-ghost" type="button" id="refresh-activity">Refresh</button>
+      </div>
+      <div id="activity-list"><p class="muted">Loading&hellip;</p></div>
+    </section>
+  </div>
+</main>
+
+<script src="/assets/admin.js?v={{build}}" defer></script>
+</body>
+</html>
