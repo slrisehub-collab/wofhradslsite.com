@@ -1,4 +1,4 @@
-<!--meta {"title": "About Us | WOFHRAD-SL", "description": "WOFHRAD-SL was founded in 2006 by young women in Makeni to promote human rights, justice, democracy and good governance, with women leading change.", "path": "/about.html", "nav": "about"} -->
+<!--meta {"title": "About Us | WOFHRAD-SL", "description": "WOFHRAD-SL was founded in 2006 by young women in Makeni to promote human rights, justice, democracy and good governance, with women leading change.", "path": "/about.html", "nav": "about", "scripts": ["team.js"]} -->
 <main id="main" tabindex="-1">
 <section class="page-hero" aria-labelledby="about-page-heading">
   <div class="page-hero-inner reveal">
@@ -80,33 +80,9 @@
       <span class="section-label">Our People</span>
       <h2 id="team-heading">Meet our team</h2>
     </div>
-    <div class="team-leaders">
-      <div class="leader-card reveal">
-        <img src="/assets/img/team/isha-kanu-moriba-alieu.webp" width="110" height="110" alt="Isha Kanu-Moriba Alieu" loading="lazy" />
-        <div><h3>Isha Kanu-Moriba Alieu</h3><p>Executive Director &amp; Founder</p></div>
-      </div>
-      <div class="leader-card reveal" style="transition-delay:.1s">
-        <img src="/assets/img/team/emilia-kamara-jengo.webp" width="110" height="110" alt="Emilia Kamara Jengo" loading="lazy" />
-        <div><h3>Emilia Kamara Jengo</h3><p>Programmes Coordinator &amp; Co-Founder</p></div>
-      </div>
-    </div>
-    <!-- Staff, ordered by date joined -->
-    <ul class="team-grid" style="list-style:none;padding:0;margin:0;">
-      <li class="team-member reveal"><img src="/assets/img/team/simeon-kargbo.webp" width="90" height="90" alt="" loading="lazy" /><h3 class="team-name">Simeon Kargbo</h3><p>Head of Finance &amp; Admin</p></li>
-      <li class="team-member reveal"><img src="/assets/img/team/manty-koroma.webp" width="90" height="90" alt="" loading="lazy" /><h3 class="team-name">Manty Koroma</h3><p>Project Officer / Acting Procurement Officer</p></li>
-      <li class="team-member reveal"><img src="/assets/img/team/henrietta-bangura.webp" width="90" height="90" alt="" loading="lazy" /><h3 class="team-name">Henrietta Bangura</h3><p>Project Officer</p></li>
-      <li class="team-member reveal"><img src="/assets/img/team/kemoh-mansaray.webp" width="90" height="90" alt="" loading="lazy" /><h3 class="team-name">Kemoh Mansaray</h3><p>Chief Project Officer</p></li>
-      <li class="team-member reveal"><img src="/assets/img/team/bilkish-bangura.webp" width="90" height="90" alt="" loading="lazy" /><h3 class="team-name">Bilkish S. Bangura</h3><p>Finance Officer</p></li>
-      <li class="team-member reveal"><img src="/assets/img/team/zainab-kadijatu-kargbo.webp" width="90" height="90" alt="" loading="lazy" /><h3 class="team-name">Zainab Kadijatu Kargbo</h3><p>Field Officer</p></li>
-      <li class="team-member reveal"><img src="/assets/img/team/mohamed-stevens.webp" width="90" height="90" alt="" loading="lazy" /><h3 class="team-name">Mohamed Stevens</h3><p>Field Officer</p></li>
-      <li class="team-member reveal"><img src="/assets/img/team/aminata-daramy.webp" width="90" height="90" alt="" loading="lazy" /><h3 class="team-name">Aminata Daramy</h3><p>Field Officer</p></li>
-      <li class="team-member reveal"><img src="/assets/img/team/matilda-e-pearce.webp" width="90" height="90" alt="" loading="lazy" /><h3 class="team-name">Matilda E. Pearce</h3><p>Field Officer</p></li>
-      <li class="team-member reveal"><img src="/assets/img/team/benjamin-fornah.webp" width="90" height="90" alt="" loading="lazy" /><h3 class="team-name">Benjamin Fornah</h3><p>Office Assistant</p></li>
-      <li class="team-member reveal"><img src="/assets/img/team/mariama-thoronka.webp" width="90" height="90" alt="" loading="lazy" /><h3 class="team-name">Mariama Thoronka</h3><p>Field Staff</p></li>
-      <li class="team-member reveal"><img src="/assets/img/team/hannah-fofanah.webp" width="90" height="90" alt="" loading="lazy" /><h3 class="team-name">Hannah Fofanah</h3><p>Finance Officer</p></li>
-      <li class="team-member reveal"><img src="/assets/img/team/kadijatu-jalloh.webp" width="90" height="90" alt="" loading="lazy" /><h3 class="team-name">Kadijatu Jalloh</h3><p>Acting MEAL Officer</p></li>
-    </ul>
-
+    <div class="team-leaders" id="team-leaders"></div>
+    <ul class="team-grid" id="team-grid"></ul>
+    <p class="story-state" id="team-state" role="status">Loading the team&hellip;</p>
   </div>
 </section>
 

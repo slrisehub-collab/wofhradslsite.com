@@ -36,7 +36,7 @@ export default wrap(async (req) => {
   }
 
   if (req.method === "POST") {
-    const user = requireUser(req, "editor");
+    const user = await requireUser(req, "staff"); // staff upload their own profile photo
     const buf = await req.arrayBuffer();
     if (buf.byteLength === 0) throw new HttpError(400, "No image received.");
     if (buf.byteLength > MAX_BYTES) throw new HttpError(413, "That image is too large.");
@@ -55,7 +55,7 @@ export default wrap(async (req) => {
   }
 
   if (req.method === "DELETE") {
-    requireUser(req, "editor");
+    await requireUser(req, "editor");
     if (!isId(id)) throw new HttpError(400, "Invalid image.");
     await images.delete(id);
     await images.delete(`sm/${id}`);

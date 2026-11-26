@@ -3,7 +3,7 @@ import { requireUser } from "../lib/auth.mjs";
 import { HttpError, json, wrap } from "../lib/util.mjs";
 
 export default wrap(async (req) => {
-  requireUser(req, "admin");
+  await requireUser(req, "admin");
   if (req.method !== "GET") throw new HttpError(405, "Method not allowed.");
   const s = store("activity");
   const { blobs } = await s.list();

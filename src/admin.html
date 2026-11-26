@@ -24,29 +24,61 @@
 
   <!-- LOGIN -->
   <section id="login-view" class="panel login">
-    <h1>Admin login</h1>
-    <p class="muted">For WOFHRAD-SL staff who post stories and manage the website.</p>
+    <h1>Staff login</h1>
+    <p class="muted">For WOFHRAD-SL staff who manage their profile or help run the website.</p>
     <form id="login-form">
-      <label for="login-name">Your name <span class="count">leave empty for the main admin login</span></label>
-      <input type="text" id="login-name" autocomplete="username" />
+      <label for="login-name">Your email address</label>
+      <input type="text" id="login-name" autocomplete="username" inputmode="email" />
+      <p class="muted" style="margin:.3rem 0 0">For the main administrator login, type <strong>Admin</strong>.</p>
       <label for="password">Password</label>
       <input type="password" id="password" autocomplete="current-password" required />
-      <div style="margin-top:1.25rem"><button class="btn" type="submit" id="login-btn">Log in</button></div>
+      <div style="margin-top:1.25rem;display:flex;gap:1rem;align-items:center;flex-wrap:wrap"><button class="btn" type="submit" id="login-btn">Log in</button><button type="button" class="linkish" id="forgot-open">Forgot your password?</button></div>
       <p class="msg" id="login-msg" role="alert"></p>
     </form>
+    <form id="forgot-form" class="hidden" style="margin-top:1.5rem;border-top:1px solid #e2e8f0;padding-top:1.25rem">
+      <label for="forgot-email">Email address for your staff account</label>
+      <input type="email" id="forgot-email" autocomplete="email" />
+      <div style="margin-top:1rem"><button class="btn btn-ghost" type="submit" id="forgot-btn">Email me a reset link</button></div>
+      <p class="msg" id="forgot-msg" role="status"></p>
+    </form>
+  </section>
+
+  <!-- ACCEPT AN INVITATION / RESET A PASSWORD -->
+  <section id="setup-view" class="panel login hidden" aria-labelledby="setup-title">
+    <h2 id="setup-title" class="login-title">Welcome</h2>
+    <div id="setup-details">
+      <p class="muted" id="setup-intro">Please check these details are yours before you continue.</p>
+      <dl class="setup-facts">
+        <div><dt>Name</dt><dd id="setup-name"></dd></div>
+        <div><dt>Login email</dt><dd id="setup-email"></dd></div>
+        <div><dt>Job title</dt><dd id="setup-job"></dd></div>
+      </dl>
+      <p class="muted">Not you, or something is wrong? Don't continue. Tell your administrator so they can correct it and send a new link.</p>
+      <form id="setup-form">
+        <label for="setup-pw">Choose a password</label>
+        <input type="password" id="setup-pw" autocomplete="new-password" minlength="12" required />
+        <label for="setup-pw2">Type it again</label>
+        <input type="password" id="setup-pw2" autocomplete="new-password" minlength="12" required />
+        <p class="muted" style="margin:.4rem 0 0">At least 12 characters. A short sentence you will remember works well.</p>
+        <div style="margin-top:1.25rem"><button class="btn" type="submit" id="setup-btn">Save password and log in</button></div>
+      </form>
+    </div>
+    <p class="msg" id="setup-msg" role="alert"></p>
   </section>
 
   <!-- DASHBOARD -->
   <div id="app" class="hidden">
     <nav class="tabs" aria-label="Admin sections">
-      <button type="button" class="tab active" data-tab="stories">Stories</button>
-      <button type="button" class="tab" data-tab="editor" id="tab-editor">New story</button>
-      <button type="button" class="tab" data-tab="msgs">Messages</button>
-      <button type="button" class="tab" data-tab="docs">Reports</button>
+      <button type="button" class="tab editor-only active" data-tab="stories">Stories</button>
+      <button type="button" class="tab editor-only" data-tab="editor" id="tab-editor">New story</button>
+      <button type="button" class="tab editor-only" data-tab="msgs">Messages</button>
+      <button type="button" class="tab editor-only" data-tab="docs">Reports</button>
+      <button type="button" class="tab admin-only" data-tab="team">Team</button>
       <button type="button" class="tab admin-only" data-tab="subs">Subscribers</button>
       <button type="button" class="tab admin-only" data-tab="news">Newsletter</button>
       <button type="button" class="tab admin-only" data-tab="settings">Settings</button>
       <button type="button" class="tab admin-only" data-tab="activity">Activity</button>
+      <button type="button" class="tab staff-only" data-tab="me">My profile</button>
     </nav>
 
     <!-- Stories list -->
@@ -195,6 +227,88 @@
         <div style="margin-top:1.25rem"><button class="btn" type="submit" id="settings-btn">Save</button></div>
         <p class="msg" id="settings-msg" role="status"></p>
       </form>
+    </section>
+
+
+    <!-- My profile -->
+    <section id="tab-me" class="panel hidden" aria-labelledby="h-me">
+      <div class="head-row">
+        <h2 id="h-me" style="font-size:1.4rem">My profile</h2>
+        <a class="btn btn-ghost btn-small" id="me-view" href="#" target="_blank" rel="noopener">View my public profile</a>
+      </div>
+      <p class="muted">This is what visitors see when they click your photo or name on the About page. Your name, email and job title are set by an administrator, so ask them if anything there is wrong.</p>
+      <dl class="setup-facts" id="me-facts"></dl>
+      <form id="me-form" novalidate>
+        <label for="me-photo-file">Profile photo</label>
+        <div class="photo-row"><div id="me-photo" class="photo-preview"></div>
+          <div><input type="file" id="me-photo-file" accept="image/jpeg,image/png,image/webp" />
+          <button type="button" class="btn btn-ghost btn-small" id="me-photo-remove" style="margin-top:.5rem">Remove photo</button>
+          <p class="muted" style="margin:.4rem 0 0">A clear, friendly head-and-shoulders photo works best. It is cropped to a square.</p></div></div>
+        <label for="me-bio">About you <span class="count" id="me-bio-count">0/4000</span></label>
+        <textarea id="me-bio" rows="10" maxlength="4000" placeholder="Your role at WOFHRAD-SL, your background, and what you care about in your work."></textarea>
+        <p class="muted" style="margin:.3rem 0 0">Leave a blank line between paragraphs. Start a line with <strong>##</strong> for a heading, or <strong>-</strong> for a bullet point.</p>
+        <div style="margin-top:1.25rem"><button class="btn" type="submit" id="me-save">Save my profile</button></div>
+        <p class="msg" id="me-msg" role="status"></p>
+      </form>
+      <h3 style="font-size:1.1rem;margin-top:2.5rem">Change my password</h3>
+      <form id="pw-form" novalidate>
+        <div class="grid2">
+          <div><label for="pw-current">Current password</label><input type="password" id="pw-current" autocomplete="current-password" /></div>
+          <div><label for="pw-new">New password (12+ characters)</label><input type="password" id="pw-new" autocomplete="new-password" /></div>
+        </div>
+        <div style="margin-top:1rem"><button class="btn btn-ghost" type="submit" id="pw-btn">Change password</button></div>
+        <p class="msg" id="pw-msg" role="status"></p>
+      </form>
+    </section>
+
+    <!-- Team (administrators) -->
+    <section id="tab-team" class="panel hidden" aria-labelledby="h-team">
+      <div class="head-row">
+        <div><h2 id="h-team" style="font-size:1.4rem">Team</h2><p class="muted" id="team-summary"></p></div>
+        <button class="btn" type="button" id="team-add-open">+ Add staff member</button>
+      </div>
+      <p class="help">Add a staff member with their <strong>name and email</strong>, and tick <em>Send invitation</em>. They get an email with a link that shows them their name and email to confirm, and lets them choose a password. If email isn't set up, you'll get a link to send them by WhatsApp instead. When someone leaves, press <strong>Remove</strong>: their account stops working straight away and their profile disappears from the website. To hide someone temporarily (for example during leave), untick <em>Show on website</em> instead.</p>
+
+      <form id="staff-form" class="staff-form hidden" novalidate>
+        <h3 id="staff-form-title" style="font-size:1.15rem">Add a staff member</h3>
+        <div class="grid2">
+          <div><label for="sf-name">Full name</label><input type="text" id="sf-name" maxlength="100" /></div>
+          <div><label for="sf-email">Email address</label><input type="email" id="sf-email" maxlength="254" /></div>
+          <div><label for="sf-title">Job title</label><input type="text" id="sf-title" maxlength="120" /></div>
+          <div><label for="sf-role">What they can do</label>
+            <select id="sf-role">
+              <option value="staff">Staff: edit their own profile only</option>
+              <option value="editor">Editor: also stories, messages and reports</option>
+              <option value="admin">Administrator: everything, including the team</option>
+            </select></div>
+        </div>
+        <div class="check-row">
+          <label><input type="checkbox" id="sf-leader" /> Show in the leadership section</label>
+          <label><input type="checkbox" id="sf-visible" checked /> Show on website</label>
+          <label id="sf-invite-wrap"><input type="checkbox" id="sf-invite" checked /> Send invitation now</label>
+        </div>
+        <div id="sf-edit-only" class="hidden">
+          <label for="sf-order">Position in the list (lower numbers first)</label>
+          <input type="text" id="sf-order" inputmode="numeric" style="max-width:8rem" />
+          <label for="sf-photo-file">Profile photo</label>
+          <div class="photo-row"><div id="sf-photo" class="photo-preview"></div>
+            <div><input type="file" id="sf-photo-file" accept="image/jpeg,image/png,image/webp" />
+            <button type="button" class="btn btn-ghost btn-small" id="sf-photo-remove" style="margin-top:.5rem">Remove photo</button></div></div>
+          <label for="sf-bio">Profile</label>
+          <textarea id="sf-bio" rows="7" maxlength="4000"></textarea>
+        </div>
+        <div style="margin-top:1.25rem;display:flex;gap:.7rem;flex-wrap:wrap">
+          <button class="btn" type="submit" id="sf-save">Save</button>
+          <button class="btn btn-ghost" type="button" id="sf-cancel">Cancel</button>
+        </div>
+        <p class="msg" id="sf-msg" role="status"></p>
+      </form>
+      <div id="invite-box" class="invite-box hidden" role="status">
+        <p id="invite-text"></p>
+        <div class="invite-link"><input type="text" id="invite-url" readonly aria-label="Invitation link" /><button type="button" class="btn btn-small" id="invite-copy">Copy link</button></div>
+      </div>
+      <div id="team-list" style="margin-top:1rem"><p class="muted">Loading&hellip;</p></div>
+      <p class="msg" id="team-msg" role="status"></p>
     </section>
 
     <!-- Activity -->

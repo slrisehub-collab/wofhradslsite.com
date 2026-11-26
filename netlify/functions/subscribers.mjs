@@ -14,7 +14,7 @@ const csvCell = (v) => {
 const view = (s) => ({ email: s.email, status: statusOf(s), subscribedAt: s.subscribedAt, confirmedAt: s.confirmedAt || null, confirmSentAt: s.confirmSentAt || null });
 
 export default wrap(async (req) => {
-  const user = requireUser(req, "admin");
+  const user = await requireUser(req, "admin");
   const url = new URL(req.url);
 
   if (req.method === "GET") {

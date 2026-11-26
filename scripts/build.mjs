@@ -188,7 +188,7 @@ ${scripts}
   // replaces the old cached copy of the site.
   fs.writeFileSync(path.join(out, "sw.js"), fs.readFileSync(path.join(src, "sw.js"), "utf8").replace(/__BUILD__/g, buildId));
   fs.writeFileSync(path.join(out, "robots.txt"),
-    `User-agent: *\nDisallow: /admin.html\nDisallow: /api/\nDisallow: /story-template.html\nSitemap: ${url}/sitemap.xml\n`);
+    `User-agent: *\nDisallow: /admin.html\nDisallow: /api/\nDisallow: /story-template.html\nDisallow: /team-template.html\nSitemap: ${url}/sitemap.xml\n`);
   fs.writeFileSync(path.join(out, "static-pages.json"), JSON.stringify(pages));
   return { out, url, pages, stories: stories.length };
 }

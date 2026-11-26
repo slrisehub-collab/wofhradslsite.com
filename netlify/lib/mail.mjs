@@ -46,3 +46,24 @@ export function confirmEmail(email, url) {
     ...(process.env.NEWSLETTER_REPLY_TO ? { reply_to: process.env.NEWSLETTER_REPLY_TO } : {}),
   };
 }
+
+// Invitation to create an account, or a password reset. The link works once, for 7 days.
+export function setupEmail(s, url, purpose, invitedBy) {
+  const invite = purpose === "invite";
+  const subject = invite ? "You're invited to the WOFHRAD-SL website" : "Reset your WOFHRAD-SL password";
+  const intro = invite
+    ? `${invitedBy ? esc(invitedBy) + " has" : "WOFHRAD-SL has"} created an account for you on the WOFHRAD-SL website, so you can manage your staff profile${s.role !== "staff" ? " and help run the website" : ""}.`
+    : "We received a request to reset the password for your WOFHRAD-SL website account. If you did not ask for this, you can ignore this email.";
+  return {
+    from: process.env.NEWSLETTER_FROM,
+    to: [s.email],
+    subject,
+    html: emailLayout(
+      `<p style="margin:0 0 16px;line-height:1.7">Hello ${esc(s.name)},</p>
+<p style="margin:0 0 16px;line-height:1.7">${intro}</p>
+<p style="margin:0 0 16px"><a href="${esc(url)}" style="display:inline-block;background:#1565C0;color:#fff;text-decoration:none;padding:12px 22px;border-radius:999px;font-weight:bold">${invite ? "Accept invitation" : "Choose a new password"}</a></p>
+<p style="margin:0;line-height:1.7;color:#64748b;font-size:14px">This link works once and expires in 7 days. Your login will be this email address, ${esc(s.email)}.</p>`),
+    text: `Hello ${s.name},\n\n${intro.replace(/&amp;/g, "&")}\n\n${invite ? "Accept the invitation" : "Choose a new password"}: ${url}\n\nThis link works once and expires in 7 days. Your login will be this email address, ${s.email}.`,
+    ...(process.env.NEWSLETTER_REPLY_TO ? { reply_to: process.env.NEWSLETTER_REPLY_TO } : {}),
+  };
+}

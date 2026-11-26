@@ -85,7 +85,7 @@ async function continueCampaign(id, origin) {
 }
 
 export default wrap(async (req) => {
-  const user = requireUser(req, "admin");
+  const user = await requireUser(req, "admin");
   const campaigns = store("campaigns");
 
   if (req.method === "GET") {

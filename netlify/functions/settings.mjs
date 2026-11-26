@@ -26,7 +26,7 @@ export default wrap(async (req) => {
   }
 
   if (req.method === "PUT") {
-    const user = requireUser(req, "admin");
+    const user = await requireUser(req, "admin");
     const data = await readJson(req, 10000);
     const next = { updatedAt: new Date().toISOString(), updatedBy: user.name };
     for (const [k, max] of Object.entries(FIELDS)) {

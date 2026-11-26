@@ -70,3 +70,22 @@ input[type=email], input[type=url] { padding: .75rem .9rem; border: 1.5px solid 
 .tab:focus-visible, .btn:focus-visible, a:focus-visible, button:focus-visible { outline: 3px solid #F9A825; outline-offset: 2px; }
 .legend-label { display: block; font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #475569; margin: 1.1rem 0 .4rem; padding: 0; }
 .badge.archive { background: #E3F2FD; color: #1565C0; }
+.linkish { background: none; border: 0; color: #1565C0; font: 600 .88rem 'DM Sans', sans-serif; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; padding: 0; }
+.setup-facts { display: grid; gap: .6rem; background: #F8FAFC; border: 1px solid #e2e8f0; border-radius: .8rem; padding: 1rem 1.1rem; margin: 1rem 0; }
+.setup-facts div { display: flex; gap: .75rem; flex-wrap: wrap; }
+.setup-facts dt { font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #475569; min-width: 7rem; padding-top: .15rem; }
+.setup-facts dd { margin: 0; font-weight: 600; color: #0D2B6B; overflow-wrap: anywhere; }
+.photo-row { display: flex; gap: 1.25rem; align-items: flex-start; flex-wrap: wrap; }
+.photo-preview { width: 110px; height: 110px; border-radius: .9rem; background: #E3F2FD; overflow: hidden; display: flex; align-items: center; justify-content: center; color: #1565C0; font: 700 1.6rem 'Playfair Display', serif; flex-shrink: 0; }
+.photo-preview img { width: 100%; height: 100%; object-fit: cover; }
+.staff-form { background: #F8FAFC; border: 1px solid #e2e8f0; border-radius: 1rem; padding: 1.25rem 1.25rem 1.5rem; margin-top: 1.25rem; }
+.check-row { display: flex; flex-wrap: wrap; gap: .5rem 1.5rem; margin-top: 1.1rem; }
+.check-row label { margin: 0; text-transform: none; letter-spacing: 0; font-size: .92rem; color: #1e293b; display: flex; align-items: center; gap: .5rem; font-weight: 600; }
+.invite-box { background: #E8F5E9; border: 1px solid #A5D6A7; border-radius: 1rem; padding: 1rem 1.25rem; margin-top: 1.25rem; }
+.invite-box p { margin: 0 0 .75rem; color: #1B5E20; font-weight: 600; line-height: 1.6; }
+.invite-link { display: flex; gap: .5rem; flex-wrap: wrap; }
+.invite-link input { flex: 1 1 16rem; padding: .55rem .75rem; border: 1.5px solid #cbd5e1; border-radius: .6rem; font: 500 .85rem monospace; background: #fff; }
+.staff-row-photo { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; background: #E3F2FD; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #1565C0; }
+.staff-row-left { display: flex; gap: .9rem; align-items: center; min-width: 0; }
+.badge.profile { background: #f1f5f9; color: #475569; } .badge.invited { background: #FFF8E1; color: #B26A00; } .badge.active { background: rgba(46,125,50,.1); color: #2E7D32; } .badge.hiddenp { background: #FFEBEE; color: #C62828; }
+.login-title { font-size: 1.6rem; margin-bottom: .4rem; }

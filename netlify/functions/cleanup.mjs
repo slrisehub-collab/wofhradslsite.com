@@ -1,4 +1,5 @@
 import { store, readAll } from "../lib/db.mjs";
+import { allStaff } from "../lib/staff.mjs";
 
 // Runs once a day on Netlify (see config.schedule). It:
 //  - deletes rate-limit and login-attempt records older than a day,
@@ -20,6 +21,7 @@ export async function cleanup(now = Date.now()) {
 
   const used = new Set();
   for (const p of await readAll(store("posts"))) [p.cover, ...(p.images || [])].filter(Boolean).forEach((i) => used.add(i));
+  for (const s of await allStaff()) if (s.photo) used.add(s.photo); // profile photos
   const images = store("images");
   const { blobs } = await images.list();
   for (const b of blobs) {

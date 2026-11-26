@@ -17,6 +17,7 @@ export function summary(p) {
     url: `/stories/${p.id}`,
     readingMinutes: readingMinutes(p.body),
     programme: p.programme || null,
+    author: p.author || null,
     status: p.status,
     date: sortKey(p),
     updatedAt: p.updatedAt,
@@ -37,7 +38,9 @@ export async function rebuildIndex() {
 
 export async function readIndex() {
   const list = await store("post-index").get(INDEX_KEY, { type: "json" });
-  return list || rebuildIndex();
+  // Rebuild once if the index predates a field the site now relies on (author, added later).
+  if (!list || (list.length && !("author" in list[0]))) return rebuildIndex();
+  return list;
 }
 
 export async function indexPut(post) {

@@ -77,26 +77,42 @@ Canonical links, social previews, `robots.txt` and the sitemap use the site's re
 automatically: Netlify supplies it to the build. When you attach your own domain in Netlify
 (**Domain management**), set it as the primary domain and redeploy.
 
-### Staff logins and roles
+### The team, staff accounts and profiles
 
-`ADMIN_PASSWORD` gives a login called **Admin** with full access. Add other people with
-`ADMIN_USERS`, one per line:
+Every staff member has a public profile at `/team/<their-name>`. Visitors reach it by clicking
+the person's photo or name on the About page. The team is managed in the admin panel's
+**Team** tab (administrators only):
 
-```
-Simeon:editor:a-long-password-for-simeon
-Emilia:admin:another-long-password
-```
+- **Add a staff member** with their full name, email address, job title and what they can do.
+  Tick *Send invitation*: they get an email with a link that shows them their name, email and job
+  title to confirm, and lets them choose a password. If email isn't set up yet, the Team tab shows
+  the link so you can send it by WhatsApp. Links work once and expire after 7 days.
+- **What they can do:** *Staff* can edit their own profile only. *Editors* can also write
+  stories, read messages and publish reports. *Administrators* can do everything, including
+  managing the team.
+- **Staff manage their own profile** in the *My profile* tab: their bio and profile photo
+  (cropped to a square), and their password. Names, emails and job titles are set by an
+  administrator, so they can't be mistyped.
+- **Forgot password:** the login page emails a reset link. An administrator can also press
+  *Send reset link* in the Team tab.
+- **Hide** someone (untick *Show on website*) to take their profile off the site temporarily, for
+  example during leave. **Remove** someone who has left: their account stops working at once,
+  and their profile and photo are deleted. Stories they wrote stay on the site.
+- Changing someone's password, access level or email ends their existing logins.
 
-- **admin**: everything, including subscribers, newsletters, donation settings and the activity log.
-- **editor**: stories, messages and reports only.
+The team started from the list on the old site (without Fatima D. Kamara), so everyone already
+has a profile. Invite each person from the Team tab to give them an account.
 
-Each person logs in with their own name and password, and the **Activity** tab records who did
-what. Changing someone's password (and redeploying) logs them out everywhere. Passwords shorter than
-12 characters are refused at login, with a message explaining why.
+**Main administrator login.** `ADMIN_PASSWORD` (Netlify environment variable) still gives a
+login called **Admin** with full access, as a way back in if every other administrator is locked
+out. Type `Admin` in the login box. Staff log in with their email address.
+`ADMIN_USERS` still works for extra environment logins but is no longer needed.
+
+**Set `SESSION_SECRET`.** Now that staff accounts exist, add a long random `SESSION_SECRET` in
+Netlify (any 40+ random characters). It protects every login.
 
 Five wrong passwords from one connection lock it out for 15 minutes, and 50 wrong passwords from
-anywhere pause all logins for 15 minutes. That second limit means an attacker could keep logins
-paused, but they could never get in. If it ever happens, wait 15 minutes.
+anywhere pause all logins for 15 minutes.
 
 ### Email (Resend)
 
@@ -137,6 +153,8 @@ sites. Unless you have a strong reason, host on Netlify only. If you do use Verc
   Orange Money and Afrimoney numbers, bank details, a WhatsApp number (adds "Chat on WhatsApp"
   links), and the registration number. Whatever you fill
   in appears on the Donate and Reports pages straight away. Check account numbers carefully.
+- **Team:** add, invite, edit, hide and remove staff (see above).
+- **My profile:** every staff member edits their own bio, photo and password.
 - **Activity:** a log of logins and changes, kept for a year.
 
 Story text in the admin panel can use simple formatting: a line starting with `##` becomes a
@@ -185,7 +203,6 @@ image, no inline scripts, no third-party scripts and no broken internal links.
 - Move to an email address on your own domain, then update `site.config.json`.
 - The Facebook, Instagram and X links were taken from the old site's footer. Check they are still
   your accounts.
-- Check the team list on the About page against the old site: it listed a Fatima D. Kamara
-  (Project Officer), who is not on this site, and gave Manty Koroma and Benjamin Fornah the title
-  Field Officer.
+- Invite each staff member from the Team tab, and check their job titles there (the old site gave
+  Manty Koroma and Benjamin Fornah the title Field Officer).
 - Have someone review the privacy policy (`src/privacy.html`).

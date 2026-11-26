@@ -1,5 +1,6 @@
 import { store, update } from "../lib/db.mjs";
-import { MIN_PASSWORD, adminConfigured, findUser, passwordOk, signToken } from "../lib/auth.mjs";
+import { MIN_PASSWORD, findEnvUser, passwordOk, signStaffToken, signToken, verifyPassword } from "../lib/auth.mjs";
+import { findByEmail } from "../lib/staff.mjs";
 import { logActivity } from "../lib/activity.mjs";
 import { HttpError, clientIp, json, readJson, sha256hex, sleep, wrap } from "../lib/util.mjs";
 
@@ -25,7 +26,6 @@ async function reserveAttempt(key) {
 
 export default wrap(async (req, context) => {
   if (req.method !== "POST") throw new HttpError(405, "Method not allowed.");
-  if (!adminConfigured()) throw new HttpError(503, "Admin login is not set up yet. Add ADMIN_PASSWORD in your Netlify settings.");
 
   const { name, password } = await readJson(req, 2000);
   const ipKey = sha256hex("ip:" + clientIp(req, context));
@@ -34,19 +34,30 @@ export default wrap(async (req, context) => {
     throw new HttpError(429, "Too many wrong attempts. Please try again in 15 minutes.");
   }
 
-  const user = findUser(name);
-  if (user && passwordOk(user, password)) {
-    if (user.password.length < MIN_PASSWORD) {
-      throw new HttpError(403, `For security, admin passwords must be at least ${MIN_PASSWORD} characters. Please set a longer password in your Netlify environment variables, then redeploy.`);
+  // Staff log in with their email address; the environment logins ("Admin") with a name.
+  if (String(name || "").includes("@")) {
+    const staff = await findByEmail(String(name).trim().toLowerCase());
+    if (staff && staff.status === "active" && verifyPassword(password, staff.passwordHash)) {
+      await store("auth-attempts").delete(ipKey);
+      await update(store("staff"), staff.id, (r) => (r ? { ...r, lastLoginAt: new Date().toISOString() } : undefined));
+      await logActivity({ name: staff.name }, "Logged in");
+      return json({ token: signStaffToken(staff), name: staff.name, role: staff.role, kind: "staff", id: staff.id, expiresInHours: 12 });
     }
-    // A correct password clears this address's count (the global count is left to expire).
-    await store("auth-attempts").delete(ipKey);
-    await logActivity(user, "Logged in");
-    return json({ token: signToken(user), name: user.name, role: user.role, expiresInHours: 12 });
+  } else {
+    const user = findEnvUser(name);
+    if (user && passwordOk(user, password)) {
+      if (user.password.length < MIN_PASSWORD) {
+        throw new HttpError(403, `For security, admin passwords must be at least ${MIN_PASSWORD} characters. Please set a longer password in your Netlify environment variables, then redeploy.`);
+      }
+      // A correct password clears this address's count (the global count is left to expire).
+      await store("auth-attempts").delete(ipKey);
+      await logActivity(user, "Logged in");
+      return json({ token: signToken(user), name: user.name, role: user.role, kind: "env", expiresInHours: 12 });
+    }
   }
 
   await sleep(400);
-  throw new HttpError(401, name ? "Incorrect name or password." : "Incorrect password.");
+  throw new HttpError(401, name ? "Incorrect email or password." : "Incorrect password.");
 });
 
 export const config = { path: "/api/login" };

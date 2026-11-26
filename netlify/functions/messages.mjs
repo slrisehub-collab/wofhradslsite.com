@@ -4,7 +4,7 @@ import { logActivity } from "../lib/activity.mjs";
 import { HttpError, isId, json, wrap } from "../lib/util.mjs";
 
 export default wrap(async (req) => {
-  const user = requireUser(req, "editor");
+  const user = await requireUser(req, "editor");
   const s = store("messages");
 
   if (req.method === "GET") {

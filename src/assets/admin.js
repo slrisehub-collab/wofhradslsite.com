@@ -39,14 +39,19 @@
   var isAdmin = function () { return session.role === 'admin'; };
 
   /* ---------- login / logout ---------- */
+  var isEditor = function () { return session.role === 'admin' || session.role === 'editor'; };
   function showApp() {
     $('login-view').classList.add('hidden');
+    $('setup-view').classList.add('hidden');
     $('app').classList.remove('hidden');
     $('logout').classList.remove('hidden');
-    $('who').textContent = 'Signed in as ' + session.name + (isAdmin() ? ' (administrator)' : ' (editor)');
+    var roleName = { admin: 'administrator', editor: 'editor', staff: 'staff' }[session.role] || session.role;
+    $('who').textContent = 'Signed in as ' + session.name + ' (' + roleName + ')';
     $('who').classList.remove('hidden');
     document.querySelectorAll('.admin-only').forEach(function (el) { el.classList.toggle('hidden', !isAdmin()); });
-    loadStories();
+    document.querySelectorAll('.editor-only').forEach(function (el) { el.classList.toggle('hidden', !isEditor()); });
+    document.querySelectorAll('.staff-only').forEach(function (el) { el.classList.toggle('hidden', session.kind !== 'staff'); });
+    if (isEditor()) { loadStories(); openTab('stories'); } else { openTab('me'); }
   }
   function logout(message) {
     token = ''; session = {}; sessionStorage.removeItem('wofhrad_admin');
@@ -63,7 +68,7 @@
     fetch('/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: $('login-name').value.trim(), password: $('password').value }) })
       .then(jsonOrError)
       .then(function (d) {
-        token = d.token; session = { token: d.token, name: d.name, role: d.role };
+        token = d.token; session = { token: d.token, name: d.name, role: d.role, kind: d.kind, id: d.id };
         sessionStorage.setItem('wofhrad_admin', JSON.stringify(session));
         say($('login-msg'), '', ''); showApp();
       })
@@ -74,10 +79,11 @@
   });
 
   /* ---------- tabs ---------- */
-  var panels = { stories: 'tab-stories', editor: 'tab-editor-panel', msgs: 'tab-msgs', docs: 'tab-docs', subs: 'tab-subs', news: 'tab-news', settings: 'tab-settings', activity: 'tab-activity' };
+  var panels = { stories: 'tab-stories', editor: 'tab-editor-panel', msgs: 'tab-msgs', docs: 'tab-docs', team: 'tab-team', subs: 'tab-subs', news: 'tab-news', settings: 'tab-settings', activity: 'tab-activity', me: 'tab-me' };
   var loaders = {
     msgs: function () { loadMsgs(); }, docs: function () { loadDocs(); }, subs: function () { loadSubs(); },
-    news: function () { fillStoryPicker(); loadCampaigns(); }, settings: function () { loadSettings(); }, activity: function () { loadActivity(); }
+    news: function () { fillStoryPicker(); loadCampaigns(); }, settings: function () { loadSettings(); }, activity: function () { loadActivity(); },
+    team: function () { loadTeam(); }, me: function () { loadMe(); }
   };
   function openTab(name) {
     Object.keys(panels).forEach(function (k) { $(panels[k]).classList.toggle('hidden', k !== name); });
@@ -492,5 +498,206 @@
   }
   $('refresh-activity').addEventListener('click', loadActivity);
 
-  if (token) showApp();
+  /* ---------- photos for profiles: square crop, uploaded with a small copy ---------- */
+  function squarePhoto(file, side) {
+    if (!/^image\/(jpeg|png|webp)$/.test(file.type)) return Promise.reject(new Error('Please choose a JPG, PNG or WebP photo.'));
+    var load = window.createImageBitmap ? createImageBitmap(file) : new Promise(function (ok, no) {
+      var im = new Image(); im.onload = function () { ok(im); }; im.onerror = no; im.src = URL.createObjectURL(file);
+    });
+    return load.then(function (bmp) {
+      var w = bmp.width, h = bmp.height, s0 = Math.min(w, h);
+      var c = document.createElement('canvas'); c.width = Math.min(side, s0); c.height = c.width;
+      var g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height);
+      g.drawImage(bmp, (w - s0) / 2, (h - s0) / 4, s0, s0, 0, 0, c.width, c.height); // keep faces: crop slightly towards the top
+      return new Promise(function (ok, no) { c.toBlob(function (b) { b ? ok(b) : no(new Error('Could not prepare the photo.')); }, 'image/jpeg', 0.85); });
+    });
+  }
+  function uploadPortrait(file) {
+    var send = function (blob, q) { return api('/api/image' + (q || ''), { method: 'POST', headers: { 'Content-Type': 'image/jpeg' }, body: blob }).then(jsonOrError); };
+    return squarePhoto(file, 800).then(function (b) { return send(b); }).then(function (d) {
+      return squarePhoto(file, 240).then(function (b) { return send(b, '?thumbFor=' + encodeURIComponent(d.id)); }).catch(function () {}).then(function () { return d.id; });
+    });
+  }
+  function setPreview(box, url, name) {
+    box.textContent = '';
+    if (url) { var im = document.createElement('img'); im.src = url; im.alt = ''; box.appendChild(im); }
+    else box.textContent = (name || '').split(/\s+/).map(function (w) { return w.charAt(0); }).slice(0, 2).join('');
+  }
+
+  /* ---------- my profile ---------- */
+  var me = null, mePhoto;
+  function loadMe() {
+    say($('me-msg'), '', ''); say($('pw-msg'), '', '');
+    api('/api/staff?me=1').then(jsonOrError).then(function (d) {
+      me = d.profile;
+      if (!me) { $('me-form').classList.add('hidden'); return; }
+      mePhoto = undefined;
+      $('me-view').href = '/team/' + encodeURIComponent(me.slug);
+      var facts = $('me-facts'); facts.textContent = '';
+      [['Name', me.name], ['Login email', me.email], ['Job title', me.title], ['On the website', me.visible ? 'Shown' : 'Hidden by an administrator']].forEach(function (f) {
+        var div = mk('div'); div.appendChild(mk('dt', null, f[0])); div.appendChild(mk('dd', null, f[1] || '')); facts.appendChild(div);
+      });
+      $('me-bio').value = me.bio || ''; counter($('me-bio'), $('me-bio-count'), 4000);
+      setPreview($('me-photo'), me.photoUrl, me.name);
+    }).catch(function (err) { say($('me-msg'), err.message, 'err'); });
+  }
+  $('me-bio').addEventListener('input', function () { counter($('me-bio'), $('me-bio-count'), 4000); });
+  $('me-photo-file').addEventListener('change', function (e) {
+    var f = e.target.files[0]; if (!f) return;
+    say($('me-msg'), 'Uploading photo…', '');
+    uploadPortrait(f).then(function (id) { mePhoto = id; setPreview($('me-photo'), '/api/image?id=' + id + '&size=sm'); say($('me-msg'), 'Photo ready. Press "Save my profile" to use it.', ''); })
+      .catch(function (err) { say($('me-msg'), err.message, 'err'); }).then(function () { e.target.value = ''; });
+  });
+  $('me-photo-remove').addEventListener('click', function () { mePhoto = null; setPreview($('me-photo'), null, me && me.name); say($('me-msg'), 'Press "Save my profile" to remove your photo.', ''); });
+  $('me-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var body = { bio: $('me-bio').value }; if (mePhoto !== undefined) body.photo = mePhoto;
+    var btn = $('me-save'); btn.disabled = true; say($('me-msg'), 'Saving…', '');
+    postJson('/api/staff?me=1', body, 'PUT').then(function (d) { me = d.profile; mePhoto = undefined; say($('me-msg'), 'Saved. Your public profile is updated.', 'ok'); })
+      .catch(function (err) { say($('me-msg'), err.message, 'err'); }).then(function () { btn.disabled = false; });
+  });
+  $('pw-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var btn = $('pw-btn'); btn.disabled = true; say($('pw-msg'), 'Saving…', '');
+    postJson('/api/staff?action=password', { current: $('pw-current').value, next: $('pw-new').value })
+      .then(function () { $('pw-form').reset(); logout('Password changed. Please log in with your new password.'); })
+      .catch(function (err) { say($('pw-msg'), err.message, 'err'); }).then(function () { btn.disabled = false; });
+  });
+
+  /* ---------- team (administrators) ---------- */
+  var team = [], editingStaff = null, sfPhoto;
+  var STATUS = { profile: 'No account', invited: 'Invited', active: 'Active' };
+  function showInvite(name, r) {
+    if (!r) return;
+    $('invite-box').classList.remove('hidden');
+    $('invite-text').textContent = r.emailed
+      ? 'Invitation emailed to ' + name + '. You can also send them this link (it works once, for 7 days):'
+      : 'Email is not set up, so nothing was emailed. Send ' + name + ' this link by WhatsApp or in person (it works once, for 7 days):';
+    $('invite-url').value = r.url;
+  }
+  $('invite-copy').addEventListener('click', function () {
+    var v = $('invite-url').value;
+    if (navigator.clipboard) navigator.clipboard.writeText(v).then(function () { $('invite-copy').textContent = 'Copied'; setTimeout(function () { $('invite-copy').textContent = 'Copy link'; }, 2000); });
+    else { $('invite-url').select(); }
+  });
+  function loadTeam() {
+    say($('team-msg'), '', '');
+    api('/api/staff?all=1').then(jsonOrError).then(function (d) {
+      team = d.staff;
+      var active = team.filter(function (s) { return s.status === 'active'; }).length;
+      $('team-summary').textContent = team.length + ' people · ' + active + ' with active accounts';
+      var box = $('team-list'); box.textContent = '';
+      team.forEach(function (s) {
+        var row = mk('div', 'row');
+        var left = mk('div', 'staff-row-left');
+        var ph = s.photoUrl ? document.createElement('img') : mk('span', null, s.name.split(/\s+/).map(function (w) { return w.charAt(0); }).slice(0, 2).join(''));
+        ph.className = 'staff-row-photo'; if (s.photoUrl) { ph.src = s.photoUrl; ph.alt = ''; }
+        left.appendChild(ph);
+        var info = mk('div');
+        var t = mk('div', 'row-title');
+        t.appendChild(mk('span', 'badge ' + s.status, STATUS[s.status]));
+        if (!s.visible) t.appendChild(mk('span', 'badge hiddenp', 'Hidden'));
+        t.appendChild(document.createTextNode(s.name));
+        info.appendChild(t);
+        info.appendChild(mk('div', 'row-meta', [s.title, s.email || 'no email', s.status !== 'profile' ? ({ admin: 'Administrator', editor: 'Editor', staff: 'Staff' })[s.role] : '', s.lastLoginAt ? 'last login ' + fmtDate(s.lastLoginAt) : ''].filter(Boolean).join(' · ')));
+        left.appendChild(info);
+        var actions = mk('div', 'row-actions');
+        var view = mk('a', 'btn btn-ghost btn-small', 'View'); view.href = '/team/' + encodeURIComponent(s.slug); view.target = '_blank'; view.rel = 'noopener';
+        if (s.visible) actions.appendChild(view);
+        var ed = mk('button', 'btn btn-ghost btn-small', 'Edit'); ed.type = 'button'; ed.addEventListener('click', function () { openStaffForm(s); });
+        actions.appendChild(ed);
+        if (s.email) {
+          var inv = mk('button', 'btn btn-ghost btn-small', s.status === 'active' ? 'Send reset link' : s.status === 'invited' ? 'Resend invitation' : 'Invite');
+          inv.type = 'button';
+          inv.addEventListener('click', function () {
+            inv.disabled = true;
+            postJson('/api/staff?id=' + encodeURIComponent(s.id) + '&action=invite', {}).then(function (r) { showInvite(s.name, r); loadTeam(); })
+              .catch(function (err) { say($('team-msg'), err.message, 'err'); }).then(function () { inv.disabled = false; });
+          });
+          actions.appendChild(inv);
+        }
+        var rm = mk('button', 'btn btn-danger', 'Remove'); rm.type = 'button';
+        rm.addEventListener('click', function () {
+          if (!confirm('Remove ' + s.name + ' from the team?\n\nTheir profile disappears from the website and their account stops working straight away. This cannot be undone.')) return;
+          api('/api/staff?id=' + encodeURIComponent(s.id), { method: 'DELETE' }).then(jsonOrError).then(function () { say($('team-msg'), s.name + ' has been removed.', 'ok'); loadTeam(); })
+            .catch(function (err) { say($('team-msg'), err.message, 'err'); });
+        });
+        actions.appendChild(rm);
+        row.appendChild(left); row.appendChild(actions); box.appendChild(row);
+      });
+    }).catch(function (err) { $('team-list').textContent = err.message; });
+  }
+  function openStaffForm(s) {
+    editingStaff = s || null; sfPhoto = undefined;
+    $('staff-form').classList.remove('hidden');
+    $('staff-form-title').textContent = s ? 'Edit ' + s.name : 'Add a staff member';
+    $('sf-name').value = s ? s.name : ''; $('sf-email').value = s ? s.email || '' : ''; $('sf-title').value = s ? s.title || '' : '';
+    $('sf-role').value = s ? s.role : 'staff'; $('sf-leader').checked = s ? s.leader : false; $('sf-visible').checked = s ? s.visible : true;
+    $('sf-invite-wrap').classList.toggle('hidden', Boolean(s)); $('sf-invite').checked = true;
+    $('sf-edit-only').classList.toggle('hidden', !s);
+    if (s) { $('sf-order').value = s.order; $('sf-bio').value = s.bio || ''; setPreview($('sf-photo'), s.photoUrl, s.name); }
+    say($('sf-msg'), '', '');
+    $('sf-name').focus();
+  }
+  $('team-add-open').addEventListener('click', function () { openStaffForm(null); });
+  $('sf-cancel').addEventListener('click', function () { $('staff-form').classList.add('hidden'); });
+  $('sf-photo-file').addEventListener('change', function (e) {
+    var f = e.target.files[0]; if (!f) return;
+    say($('sf-msg'), 'Uploading photo…', '');
+    uploadPortrait(f).then(function (id) { sfPhoto = id; setPreview($('sf-photo'), '/api/image?id=' + id + '&size=sm'); say($('sf-msg'), 'Photo ready. Press Save to use it.', ''); })
+      .catch(function (err) { say($('sf-msg'), err.message, 'err'); }).then(function () { e.target.value = ''; });
+  });
+  $('sf-photo-remove').addEventListener('click', function () { sfPhoto = null; setPreview($('sf-photo'), null, $('sf-name').value); });
+  $('staff-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var body = { name: $('sf-name').value.trim(), email: $('sf-email').value.trim(), title: $('sf-title').value.trim(), role: $('sf-role').value, leader: $('sf-leader').checked, visible: $('sf-visible').checked };
+    if (!body.name) { say($('sf-msg'), 'Please enter their full name.', 'err'); $('sf-name').focus(); return; }
+    if (!body.title) { say($('sf-msg'), 'Please enter their job title.', 'err'); $('sf-title').focus(); return; }
+    var url = '/api/staff', method = 'POST';
+    if (editingStaff) { url += '?id=' + encodeURIComponent(editingStaff.id); method = 'PUT'; body.order = $('sf-order').value; body.bio = $('sf-bio').value; if (sfPhoto !== undefined) body.photo = sfPhoto; }
+    else { body.invite = $('sf-invite').checked && Boolean(body.email); }
+    if (!editingStaff && $('sf-invite').checked && !body.email) { say($('sf-msg'), 'Add their email address to send an invitation, or untick "Send invitation now".', 'err'); return; }
+    var btn = $('sf-save'); btn.disabled = true; say($('sf-msg'), 'Saving…', '');
+    postJson(url, body, method).then(function (d) {
+      $('staff-form').classList.add('hidden');
+      if (d.invite) showInvite(body.name, d.invite); else $('invite-box').classList.add('hidden');
+      say($('team-msg'), (editingStaff ? 'Saved changes to ' : 'Added ') + body.name + '.', 'ok');
+      loadTeam();
+    }).catch(function (err) { say($('sf-msg'), err.message, 'err'); }).then(function () { btn.disabled = false; });
+  });
+
+  /* ---------- forgot password, and invitation / reset links ---------- */
+  $('forgot-open').addEventListener('click', function () { $('forgot-form').classList.toggle('hidden'); $('forgot-email').value = $('login-name').value.indexOf('@') > 0 ? $('login-name').value : ''; $('forgot-email').focus(); });
+  $('forgot-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var btn = $('forgot-btn'); btn.disabled = true; say($('forgot-msg'), 'Sending…', '');
+    fetch('/api/account', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'forgot', email: $('forgot-email').value.trim() }) })
+      .then(jsonOrError).then(function (d) { say($('forgot-msg'), d.message, 'ok'); })
+      .catch(function (err) { say($('forgot-msg'), err.message, 'err'); }).then(function () { btn.disabled = false; });
+  });
+  var setupToken = new URLSearchParams(location.search).get('setup');
+  if (setupToken) {
+    history.replaceState(null, '', location.pathname); // keep the one-time link out of the address bar
+    $('login-view').classList.add('hidden'); $('setup-view').classList.remove('hidden');
+    fetch('/api/account?t=' + encodeURIComponent(setupToken)).then(jsonOrError).then(function (d) {
+      $('setup-title').textContent = d.purpose === 'reset' ? 'Choose a new password' : 'Welcome to the team, ' + d.name.split(/\s+/)[0];
+      $('setup-name').textContent = d.name; $('setup-email').textContent = d.email; $('setup-job').textContent = d.title || '';
+    }).catch(function (err) {
+      $('setup-details').classList.add('hidden');
+      say($('setup-msg'), err.message, 'err');
+    });
+    $('setup-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      if ($('setup-pw').value !== $('setup-pw2').value) { say($('setup-msg'), 'The two passwords are different. Please type them again.', 'err'); return; }
+      var btn = $('setup-btn'); btn.disabled = true; say($('setup-msg'), 'Saving…', '');
+      fetch('/api/account', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'setup', t: setupToken, password: $('setup-pw').value }) })
+        .then(jsonOrError).then(function (d) {
+          token = d.token; session = { token: d.token, name: d.name, role: d.role, kind: d.kind, id: d.id };
+          sessionStorage.setItem('wofhrad_admin', JSON.stringify(session));
+          say($('setup-msg'), '', ''); showApp(); openTab('me');
+        }).catch(function (err) { say($('setup-msg'), err.message, 'err'); }).then(function () { btn.disabled = false; });
+    });
+  }
+
+  if (token && !setupToken) showApp();
 })();

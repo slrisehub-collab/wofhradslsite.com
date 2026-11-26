@@ -39,7 +39,7 @@ async function deleteImages(ids) {
 export default wrap(async (req) => {
   const url = new URL(req.url);
   const id = url.searchParams.get("id");
-  const user = currentUser(req);
+  const user = await currentUser(req);
   const posts = store("posts");
 
   if (req.method === "GET") {
@@ -56,16 +56,18 @@ export default wrap(async (req) => {
     const q = (url.searchParams.get("q") || "").trim().toLowerCase().slice(0, 100);
     const year = url.searchParams.get("year");
     const exclude = url.searchParams.get("exclude");
+    const author = url.searchParams.get("author");
     let list = (await listAll({ includeDrafts: includeAll }))
       .filter((p) => !programme || p.programme === programme)
       .filter((p) => !exclude || p.id !== exclude)
+      .filter((p) => !author || p.author === author)
       .filter((p) => !q || `${p.title} ${p.excerpt}`.toLowerCase().includes(q));
     const years = [...new Set(list.map((p) => p.date.slice(0, 4)))].sort().reverse();
     if (year) list = list.filter((p) => p.date.startsWith(year));
     return json({ total: list.length, years, posts: list.slice(offset, offset + limit) }, 200, includeAll ? {} : cdnCache(["posts"]));
   }
 
-  const actor = requireUser(req, "editor");
+  const actor = await requireUser(req, "editor");
 
   if (req.method === "POST") {
     const data = validate(await readJson(req));

@@ -11,20 +11,26 @@ import { esc } from "./util.mjs";
 
 const inline = (s) => esc(s).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>").replace(/\n/g, "<br>");
 
+function renderBlock(b) {
+  const lines = b.split("\n");
+  // A heading line can be followed directly by more text or a list, without a blank line.
+  if (/^##\s+/.test(lines[0])) {
+    const head = `<h2>${inline(lines[0].replace(/^##\s+/, ""))}</h2>`;
+    const rest = lines.slice(1).join("\n").trim();
+    return rest ? head + "\n" + renderBlock(rest) : head;
+  }
+  if (lines.every((l) => /^\s*[-*]\s+/.test(l))) {
+    return `<ul>${lines.map((l) => `<li>${inline(l.replace(/^\s*[-*]\s+/, ""))}</li>`).join("")}</ul>`;
+  }
+  return `<p>${inline(b)}</p>`;
+}
+
 export function renderBody(text) {
   return String(text || "")
     .replace(/\r\n/g, "\n")
     .trim()
     .split(/\n{2,}/)
-    .map((block) => {
-      const b = block.trim();
-      if (/^##\s+/.test(b)) return `<h2>${inline(b.replace(/^##\s+/, ""))}</h2>`;
-      const lines = b.split("\n");
-      if (lines.every((l) => /^\s*[-*]\s+/.test(l))) {
-        return `<ul>${lines.map((l) => `<li>${inline(l.replace(/^\s*[-*]\s+/, ""))}</li>`).join("")}</ul>`;
-      }
-      return `<p>${inline(b)}</p>`;
-    })
+    .map((block) => renderBlock(block.trim()))
     .join("\n");
 }
 

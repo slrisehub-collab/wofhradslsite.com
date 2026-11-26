@@ -19,6 +19,10 @@
   ],
   "rewrites": [
     {
+      "source": "/team/:slug",
+      "destination": "/api/team?slug=:slug"
+    },
+    {
       "source": "/stories/:id",
       "destination": "/api/story?id=:id"
     },

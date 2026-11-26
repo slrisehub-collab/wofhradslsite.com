@@ -33,7 +33,7 @@ export default wrap(async (req) => {
     return json({ documents: docs }, 200, cdnCache(["documents"]));
   }
 
-  const user = requireUser(req, "editor");
+  const user = await requireUser(req, "editor");
 
   if (req.method === "POST") {
     const title = decodeURIComponent(req.headers.get("x-title") || "").trim();

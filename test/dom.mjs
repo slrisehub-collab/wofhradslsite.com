@@ -13,13 +13,14 @@ const realFetch = globalThis.fetch;
 globalThis.fetch = async (input, init) => {
   const url = String(input);
   if (url.startsWith("https://api.resend.com/")) return Response.json({ data: [] });
+  if (url.endsWith("/team-template.html")) return new Response(fs.readFileSync("dist/team-template.html", "utf8"));
   if (url.endsWith("/story-template.html")) return new Response(fs.readFileSync("dist/story-template.html", "utf8"));
   return realFetch(input, init);
 };
 
 const fn = async (n) => (await import(`../netlify/functions/${n}.mjs`)).default;
 const handlers = {};
-for (const n of ["login", "posts", "image", "contact", "messages", "subscribe", "subscribers", "newsletter", "settings", "documents", "activity", "story", "feed"]) {
+for (const n of ["login", "posts", "image", "contact", "messages", "subscribe", "subscribers", "newsletter", "settings", "documents", "activity", "story", "feed", "staff", "account", "team"]) {
   handlers["/api/" + n] = await fn(n);
 }
 const ORIGIN = "https://site.test";
@@ -77,7 +78,7 @@ for (const file of pages) {
   const html = fs.readFileSync("dist/" + file, "utf8");
   const d = new JSDOM(html).window.document;
   const label = file + ":";
-  if (file !== "story-template.html") ok(d.querySelectorAll("h1").length === 1, `${label} exactly one <h1>`);
+  if (!/-template\.html$/.test(file)) ok(d.querySelectorAll("h1").length === 1, `${label} exactly one <h1>`);
   ok(d.querySelectorAll("main").length === 1, `${label} has one <main>`);
   ok([...d.querySelectorAll("img")].every((i) => i.hasAttribute("alt")), `${label} every image has alt text`);
   ok([...d.querySelectorAll("script:not([type='application/ld+json'])")].every((s) => s.src), `${label} no inline scripts (so the security policy can forbid them)`);
@@ -256,8 +257,54 @@ let adminToken;
   ok(!errors.length, "programme page: no script errors " + errors.join(" | "));
 }
 {
-  const { d } = await open("about.html");
-  ok(d.querySelectorAll("#team .team-member").length === 13 && d.querySelectorAll(".value-card").length === 6 && d.querySelectorAll(".timeline li").length >= 5, "about: team, values and timeline");
+  const { d, errors } = await open("about.html");
+  await until(() => d.querySelectorAll("#team-grid .team-member").length === 13);
+  ok(d.querySelectorAll("#team-leaders .leader-card").length === 2 && d.querySelectorAll("#team-grid .team-member").length === 13 && d.getElementById("team-state").hidden, "about: team loads from the staff profiles (2 leaders, 13 staff)");
+  ok(d.querySelector("#team-leaders a").getAttribute("href") === "/team/isha-kanu-moriba-alieu" && [...d.querySelectorAll("#team-grid a")].every((a) => a.getAttribute("href").startsWith("/team/")), "about: every photo and name links to that person's profile");
+  ok(!d.getElementById("team-grid").textContent.includes("Fatima"), "about: Fatima D. Kamara is not listed");
+  ok(d.querySelectorAll(".value-card").length === 6 && d.querySelectorAll(".timeline li").length >= 5, "about: values and timeline");
+  ok(!errors.length, "about: no script errors " + errors.join(" | "));
+}
+{
+  const html = await (await handlers["/api/team"](new Request(ORIGIN + "/team/emilia-kamara-jengo"))).text();
+  const { d, errors } = await openHtml(html, "/team/emilia-kamara-jengo");
+  ok(d.querySelector("h1").textContent === "Emilia Kamara Jengo" && d.querySelector(".profile-photo img") && d.querySelector(".story-text p").textContent.includes("co-founded"), "profile page: photo, name and bio");
+  ok(!errors.length, "profile page: no script errors " + errors.join(" | "));
+}
+
+// ---------- inviting a new staff member, end to end ----------
+{
+  const { w, d, errors } = await open("admin.html");
+  const $ = (id) => d.getElementById(id);
+  $("password").value = "test-only-password-not-real"; submit(w, $("login-form"));
+  await until(() => !$("app").classList.contains("hidden"));
+  d.querySelector('.tab[data-tab="team"]').click();
+  await until(() => d.querySelectorAll("#team-list .row").length === 15);
+  ok(d.querySelectorAll("#team-list .row").length === 15 && d.querySelectorAll("#team-list .badge.profile").length === 15, "team tab: lists everyone, none with accounts yet");
+  $("team-add-open").click();
+  $("sf-name").value = "Fatmata Sesay"; $("sf-email").value = "fatmata.sesay@example.org"; $("sf-title").value = "Field Officer";
+  submit(w, $("staff-form"));
+  await until(() => !$("invite-box").classList.contains("hidden"));
+  const inviteUrl = $("invite-url").value;
+  ok($("invite-text").textContent.includes("emailed") && inviteUrl.includes("/admin.html?setup="), "team tab: adding with an email sends an invitation and shows the link");
+  await until(() => d.querySelectorAll("#team-list .row").length === 16);
+  ok(d.querySelector("#team-list").textContent.includes("Fatmata Sesay") && d.querySelectorAll("#team-list .badge.invited").length === 1, "team tab: new person shows as Invited");
+  ok(!errors.length, "team tab: no script errors " + errors.join(" | "));
+
+  const inv = await open("admin.html", "?" + inviteUrl.split("?")[1]);
+  const $$ = (id) => inv.d.getElementById(id);
+  await until(() => $$("setup-email").textContent === "fatmata.sesay@example.org");
+  ok(!$$("setup-view").classList.contains("hidden") && $$("setup-name").textContent === "Fatmata Sesay" && $$("setup-job").textContent === "Field Officer", "invitation: shows the person's name, email and job title to confirm");
+  $$("setup-pw").value = "fatmata-long-pass-1"; $$("setup-pw2").value = "different-pass-123"; submit(inv.w, $$("setup-form"));
+  ok($$("setup-msg").textContent.includes("different"), "invitation: the two passwords must match");
+  $$("setup-pw2").value = "fatmata-long-pass-1"; submit(inv.w, $$("setup-form"));
+  await until(() => !$$("app").classList.contains("hidden"));
+  ok(!$$("tab-me").classList.contains("hidden") && inv.d.querySelector('.tab[data-tab="stories"]').classList.contains("hidden") && inv.d.querySelector('.tab[data-tab="team"]').classList.contains("hidden"), "invitation: a staff account lands on My profile, without the admin tabs");
+  await until(() => $$("me-facts").textContent.includes("fatmata.sesay@example.org"));
+  $$("me-bio").value = "I work with communities in Bombali."; submit(inv.w, $$("me-form"));
+  await until(() => $$("me-msg").classList.contains("ok"));
+  ok($$("me-msg").textContent.includes("Saved") && $$("me-view").getAttribute("href") === "/team/fatmata-sesay", "my profile: staff save their bio and can view their public page");
+  ok(!inv.errors.length, "invitation flow: no script errors " + inv.errors.join(" | "));
 }
 
 // ---------- donate ----------

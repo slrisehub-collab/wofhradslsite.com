@@ -29,6 +29,7 @@ globalThis.fetch = async (input, init = {}) => {
     return Response.json({ data: [] });
   }
   if (url === B + "/story-template.html") return new Response(fs.readFileSync("dist/story-template.html", "utf8"));
+  if (url === B + "/team-template.html") return new Response(fs.readFileSync("dist/team-template.html", "utf8"));
   if (url === B + "/static-pages.json") return new Response(fs.readFileSync("dist/static-pages.json", "utf8"));
   return realFetch(input, init);
 };
@@ -43,6 +44,7 @@ const { cleanup } = await import("../netlify/functions/cleanup.mjs");
 const ARCHIVE = (await import("../netlify/lib/archive-index.mjs")).default;
 const A = ARCHIVE.length;
 const feed = await fn("feed");
+const staffFn = await fn("staff"), account = await fn("account"), teamFn = await fn("team");
 const { store } = await import("../netlify/lib/db.mjs");
 
 const doLogin = (body, ip) => login(post("/api/login", body), { ip });
@@ -339,6 +341,139 @@ ok(r.headers.get("content-type").startsWith("application/rss+xml") && rss.includ
 }
 r = await settings(req("/api/settings", { method: "PUT", headers: auth(token), body: JSON.stringify({ whatsapp: "call me" }) }));
 ok(r.status === 400, "WhatsApp setting must be a phone number");
+
+
+// ---- staff profiles and accounts ----
+{
+  const sget = (q, h = {}) => staffFn(req("/api/staff" + q, { headers: h }));
+  const ssend = (q, method, body, h) => staffFn(req("/api/staff" + q, { method, headers: h, body: JSON.stringify(body) }));
+  r = await sget("");
+  let list = (await r.json()).staff;
+  ok(list.length === 15 && list[0].name === "Isha Kanu-Moriba Alieu" && list[0].leader && list[1].leader, "team starts with the current 15 people, leaders first");
+  ok(!list.some((p) => /Fatima/i.test(p.name)), "Fatima D. Kamara is not on the team list");
+  ok(list.every((p) => !("email" in p) && !("passwordHash" in p)), "public team list never shows emails or passwords");
+  r = await teamFn(req("/team/simeon-kargbo"));
+  page = await r.text();
+  ok(r.status === 200 && page.includes("<h1 id=\"person-heading\">Simeon Kargbo</h1>") && page.includes("Head of Finance &amp; Admin") && page.includes("Development Studies"), "each person has a profile page with their bio");
+  r = await teamFn(req("/team/nobody-here"));
+  ok(r.status === 404, "unknown profile gives a 404");
+
+  // add and invite
+  sentMail.length = 0;
+  r = await ssend("", "POST", { name: "Mary Conteh", email: "Mary@Example.org", title: "Communications Officer", role: "staff", invite: true }, auth(token));
+  let added = await r.json();
+  ok(r.status === 201 && added.staff.status === "invited" && added.staff.email === "mary@example.org", "admin adds a staff member by name and email");
+  ok(sentMail.length === 1 && sentMail[0].to[0] === "mary@example.org" && sentMail[0].html.includes("Accept invitation") && added.invite.emailed, "invitation is emailed");
+  const link = added.invite.url.split("setup=")[1];
+  r = await ssend("", "POST", { name: "Someone Else", email: "mary@example.org", title: "X" }, auth(token));
+  ok(r.status === 409, "two people can't share an email address");
+  r = await ssend("", "POST", { name: "No Email", title: "X", invite: true }, auth(token));
+  ok(r.status === 400, "an invitation needs an email address");
+  r = await ssend("", "POST", { name: "X", email: "x@example.org", title: "X" }, auth(editorToken));
+  ok(r.status === 403, "only administrators can add staff");
+
+  // accept the invitation
+  r = await account(req("/api/account?t=" + link));
+  let info = await r.json();
+  ok(info.name === "Mary Conteh" && info.email === "mary@example.org" && info.title === "Communications Officer", "invitation link shows the person their name, email and job title to confirm");
+  r = await account(post("/api/account", { action: "setup", t: link, password: "short" }), { ip: "4.4.4.1" });
+  ok(r.status === 400, "invitation needs a password of 12+ characters");
+  r = await account(post("/api/account", { action: "setup", t: link, password: "mary-long-password-1" }), { ip: "4.4.4.1" });
+  let acc = await r.json();
+  ok(r.status === 200 && acc.token && acc.role === "staff", "accepting the invitation logs them in");
+  r = await account(req("/api/account?t=" + link));
+  ok(r.status === 404, "an invitation link works only once");
+  r = await doLogin({ name: "mary@example.org", password: "mary-long-password-1" }, "4.4.4.2");
+  let maryToken = (await r.json()).token;
+  ok(r.status === 200 && maryToken, "staff log in with their email address");
+
+  // staff edit their own profile
+  r = await image(req("/api/image", { method: "POST", headers: auth(maryToken), body: jpeg }));
+  const maryPhoto = (await r.json()).id;
+  ok(r.status === 201, "staff can upload a profile photo");
+  r = await ssend("?me=1", "PUT", { bio: "I lead our communications.\n\n## Background\n- Journalism", photo: maryPhoto }, auth(maryToken));
+  let mine = (await r.json()).profile;
+  ok(r.status === 200 && mine.photoUrl.includes(maryPhoto) && mine.bio.includes("communications"), "staff edit their own bio and photo");
+  r = await ssend("?me=1", "PUT", { name: "Changed Name", title: "Director" }, auth(maryToken));
+  mine = (await r.json()).profile;
+  ok(mine.name === "Mary Conteh" && mine.title === "Communications Officer", "staff cannot change their own name or job title");
+  r = await teamFn(req("/team/mary-conteh"));
+  page = await r.text();
+  ok(page.includes("<h2>Background</h2>") && page.includes(maryPhoto), "their public profile shows the new bio and photo");
+  r = await messages(req("/api/messages", { headers: auth(maryToken) }));
+  ok(r.status === 403, "a staff account can't read messages");
+  r = await posts(post("/api/posts", { title: "x", body: "y" }, auth(maryToken)));
+  ok(r.status === 403, "a staff account can't publish stories");
+  r = await sget("?all=1", auth(maryToken));
+  ok(r.status === 403, "a staff account can't see the team admin list");
+
+  // changing a photo removes the old one
+  r = await image(req("/api/image", { method: "POST", headers: auth(maryToken), body: jpeg }));
+  const photo2 = (await r.json()).id;
+  await ssend("?me=1", "PUT", { photo: photo2 }, auth(maryToken));
+  r = await image(req("/api/image?id=" + maryPhoto));
+  ok(r.status === 404, "replacing a profile photo deletes the old one");
+
+  // administrator edits: role change ends the old session; hide; promote
+  const maryId = added.staff.id;
+  r = await ssend("?id=" + maryId, "PUT", { role: "editor", title: "Communications Lead" }, auth(token));
+  ok(r.status === 200 && (await r.json()).staff.role === "editor", "admin can change role and job title");
+  r = await sget("?me=1", auth(maryToken));
+  ok(r.status === 401, "changing someone's access ends their current session");
+  r = await doLogin({ name: "mary@example.org", password: "mary-long-password-1" }, "4.4.4.3");
+  maryToken = (await r.json()).token;
+  r = await messages(req("/api/messages", { headers: auth(maryToken) }));
+  ok(r.status === 200, "as an editor she can now read messages");
+  r = await posts(post("/api/posts", { title: "Our radio programme", body: "On air.", status: "published" }, auth(maryToken)));
+  r = await posts(req("/api/posts?author=" + encodeURIComponent("Mary Conteh")));
+  ok((await r.json()).posts.some((p) => p.title === "Our radio programme"), "stories can be listed by author for profile pages");
+  await ssend("?id=" + maryId, "PUT", { visible: false }, auth(token));
+  r = await sget("");
+  ok(!(await r.json()).staff.some((p) => p.name === "Mary Conteh"), "hidden profiles disappear from the website");
+  r = await teamFn(req("/team/mary-conteh"));
+  ok(r.status === 404, "hidden profile page is not reachable");
+  await ssend("?id=" + maryId, "PUT", { visible: true }, auth(token));
+
+  // password change and reset
+  r = await ssend("?action=password", "POST", { current: "wrong", next: "another-long-password" }, auth(maryToken));
+  ok(r.status === 400, "changing password needs the current one");
+  r = await ssend("?action=password", "POST", { current: "mary-long-password-1", next: "another-long-password" }, auth(maryToken));
+  ok(r.status === 200, "staff change their own password");
+  r = await messages(req("/api/messages", { headers: auth(maryToken) }));
+  ok(r.status === 401, "changing password ends old sessions");
+  sentMail.length = 0;
+  r = await account(post("/api/account", { action: "forgot", email: "mary@example.org" }), { ip: "4.4.4.4" });
+  const forgotMsg = (await r.json()).message;
+  r = await account(post("/api/account", { action: "forgot", email: "nobody@example.org" }), { ip: "4.4.4.4" });
+  ok(sentMail.length === 1 && sentMail[0].subject.includes("Reset") && (await r.json()).message === forgotMsg, "forgot password emails a reset link, with the same answer for unknown addresses");
+  const resetLink = sentMail[0].html.match(/setup=([a-f0-9-]+\.[a-f0-9]+)/)[1];
+  r = await account(post("/api/account", { action: "setup", t: resetLink, password: "reset-long-password-9" }), { ip: "4.4.4.5" });
+  ok(r.status === 200, "reset link sets a new password");
+  r = await doLogin({ name: "mary@example.org", password: "reset-long-password-9" }, "4.4.4.6");
+  maryToken = (await r.json()).token;
+  ok(Boolean(maryToken), "she logs in with the new password");
+
+  // an admin can't remove themselves; removing someone ends everything
+  await ssend("?id=" + maryId, "PUT", { role: "admin" }, auth(token));
+  r = await doLogin({ name: "mary@example.org", password: "reset-long-password-9" }, "4.4.4.7");
+  maryToken = (await r.json()).token;
+  r = await staffFn(req("/api/staff?id=" + maryId, { method: "DELETE", headers: auth(maryToken) }));
+  ok(r.status === 400, "an administrator can't remove their own account");
+  r = await staffFn(req("/api/staff?id=" + maryId, { method: "DELETE", headers: auth(token) }));
+  ok(r.status === 200, "admin removes someone who has left");
+  r = await sget("?me=1", auth(maryToken));
+  const loginAfter = await doLogin({ name: "mary@example.org", password: "reset-long-password-9" }, "4.4.4.8");
+  ok(r.status === 401 && loginAfter.status === 401, "a removed person's session and login stop working at once");
+  r = await sget("");
+  ok(!(await r.json()).staff.some((p) => p.name === "Mary Conteh") && (await image(req("/api/image?id=" + photo2))).status === 404, "their profile and photo are gone");
+  r = await ssend("", "POST", { name: "Mary Conteh", email: "mary@example.org", title: "Returning", role: "staff" }, auth(token));
+  ok(r.status === 201, "the email address can be used again after removal");
+  r = await sitemap(req("/sitemap.xml"));
+  ok((await r.text()).includes("/team/simeon-kargbo"), "profiles are in the sitemap");
+  r = await activity(req("/api/activity", { headers: auth(token) }));
+  data = await r.json();
+  ok(data.items.some((a) => a.action === "Removed a staff member") && data.items.some((a) => a.action === "Accepted their invitation"), "team changes are in the activity log");
+}
 
 // ---- daily clean-up ----
 {
